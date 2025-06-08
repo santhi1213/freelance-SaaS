@@ -1,11 +1,15 @@
-// import React, { useState } from 'react';
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
 // import { FaMoneyBillWave, FaCode, FaClock, FaFilter, FaStar, FaSearch, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 // import ProjectModal from '../Modals/ProjectBidModal';
-// import { allProjects } from '../components/AllProject';
 
 // const BrowsePage = ({ darkMode }) => {
+//   const navigate = useNavigate();
 //   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 //   const [selectedProject, setSelectedProject] = useState(null);
+//   const [projects, setProjects] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
 //   const [bidDetails, setBidDetails] = useState({
 //     bidPrice: '',
 //     timeToComplete: '',
@@ -17,16 +21,70 @@
 //     duration: '', 
 //     skill: '',
 //     searchQuery: '',
-//     sortBy: 'newest' // Default sort
+//     sortBy: 'newest'
 //   });
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const projectsPerPage = 9;
 
+//   // Fetch projects from API
+//   useEffect(() => {
+//     const fetchProjects = async () => {
+//       try {
+//         setLoading(true);
+//         const response = await fetch('http://localhost:5000/api/projects/with-profiles');
+//         const result = await response.json();
+        
+//         if (result.success) {
+//           setProjects(result.data);
+//         } else {
+//           setError('Failed to fetch projects');
+//         }
+//       } catch (err) {
+//         setError('Error fetching projects: ' + err.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchProjects();
+//   }, []);
+
+//   // Transform API data to match component expectations
+//   const transformProject = (project) => ({
+//     id: project._id,
+//     title: project.title,
+//     description: project.description,
+//     budget: `$${project.budget_from} - $${project.budget_to}`,
+//     type: project.project_type,
+//     duration: project.project_duration,
+//     skills: project.req_skills,
+//     client: {
+//       name: project.userProfile?.fullName || 'Unknown Client',
+//       email: project.email,
+//       profile: project.userProfile?.profilePhoto 
+//         ? `http://localhost:5000${project.userProfile.profilePhoto}` 
+//         : `https://ui-avatars.com/api/?name=${encodeURIComponent(project.userProfile?.fullName || 'Unknown')}&background=3b82f6&color=ffffff&size=40`,
+//       rating: project.userProfile?.rating?.average || 0,
+//       totalReviews: project.userProfile?.rating?.totalReviews || 0,
+//       location: project.userProfile?.location || '',
+//       title: project.userProfile?.title || ''
+//     },
+//     createdAt: project.createdAt,
+//     updatedAt: project.updatedAt
+//   });
+
 //   // Toggle filter expansion
 //   const toggleFilterExpansion = () => setIsFilterExpanded(prev => !prev);
 
-//   // Handle project selection for bidding
+//   // Handle project selection for viewing details - REMOVED NAVIGATION
 //   const handleProjectClick = (project) => {
+//     // Just open the bid modal instead of navigating
+//     setSelectedProject(project);
+//   };
+
+//   // Handle opening bid modal separately - THIS IS NOW REDUNDANT BUT KEEPING FOR COMPATIBILITY
+//   const handleOpenBidModal = (e, project) => {
+//     e.stopPropagation();
 //     setSelectedProject(project);
 //   };
 
@@ -39,28 +97,27 @@
 //   // Handle bid submission
 //   const handleBidSubmit = () => {
 //     console.log('Bid submitted:', bidDetails, 'for project:', selectedProject);
-//     // Here you would typically send this data to your API
-//     setSelectedProject(null);
+//     // Reset bid details
 //     setBidDetails({
 //       bidPrice: '',
 //       timeToComplete: '',
 //       backgroundDescription: ''
 //     });
-//     // Show success notification
-//     alert('Your bid has been successfully submitted!');
+//     // Close modal
+//     setSelectedProject(null);
 //   };
 
 //   // Handle filter changes
 //   const handleFilterChange = (e) => {
 //     const { name, value } = e.target;
 //     setFilters(prev => ({ ...prev, [name]: value }));
-//     setCurrentPage(1); // Reset to first page on filter change
+//     setCurrentPage(1);
 //   };
 
 //   // Handle search input
 //   const handleSearchChange = (e) => {
 //     setFilters(prev => ({ ...prev, searchQuery: e.target.value }));
-//     setCurrentPage(1); // Reset to first page on search
+//     setCurrentPage(1);
 //   };
 
 //   // Clear all filters
@@ -76,18 +133,27 @@
 //     setCurrentPage(1);
 //   };
 
-//   // Get unique values for filters
+//   // Get unique values for filters from API data
 //   const getUniqueValues = (key) => {
 //     if (key === 'skills') {
-//       // Flatten the skills arrays and get unique values
-//       const allSkills = allProjects.flatMap(project => project.skills);
+//       const allSkills = projects.flatMap(project => project.req_skills || []);
 //       return [...new Set(allSkills)];
 //     }
-//     return [...new Set(allProjects.map(project => project[key]))];
+//     if (key === 'budget') {
+//       return [...new Set(projects.map(project => `$${project.budget_from} - $${project.budget_to}`))];
+//     }
+//     if (key === 'type') {
+//       return [...new Set(projects.map(project => project.project_type))];
+//     }
+//     if (key === 'duration') {
+//       return [...new Set(projects.map(project => project.project_duration))];
+//     }
+//     return [];
 //   };
 
-//   // Filter and sort projects based on selected filters, search query, and sort option
-//   const filteredAndSortedProjects = allProjects
+//   // Filter and sort projects
+//   const filteredAndSortedProjects = projects
+//     .map(transformProject)
 //     .filter(project => {
 //       const matchesSearch = !filters.searchQuery || 
 //         project.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
@@ -105,16 +171,18 @@
 //     .sort((a, b) => {
 //       switch (filters.sortBy) {
 //         case 'budget-high':
-//           return parseInt(b.budget.split(' - ')[0].replace('$', '')) - 
-//                  parseInt(a.budget.split(' - ')[0].replace('$', ''));
+//           const aBudgetHigh = parseInt(a.budget.split(' - ')[1].replace('$', ''));
+//           const bBudgetHigh = parseInt(b.budget.split(' - ')[1].replace('$', ''));
+//           return bBudgetHigh - aBudgetHigh;
 //         case 'budget-low':
-//           return parseInt(a.budget.split(' - ')[0].replace('$', '')) - 
-//                  parseInt(b.budget.split(' - ')[0].replace('$', ''));
+//           const aBudgetLow = parseInt(a.budget.split(' - ')[0].replace('$', ''));
+//           const bBudgetLow = parseInt(b.budget.split(' - ')[0].replace('$', ''));
+//           return aBudgetLow - bBudgetLow;
 //         case 'rating':
 //           return b.client.rating - a.client.rating;
 //         case 'newest':
 //         default:
-//           return b.id - a.id; // Assuming higher ID means newer project
+//           return new Date(b.createdAt) - new Date(a.createdAt);
 //       }
 //     });
 
@@ -140,6 +208,37 @@
 //       setCurrentPage(currentPage - 1);
 //     }
 //   };
+
+//   // Loading state
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="text-center">
+//           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+//           <p className="mt-4 text-lg">Loading projects...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // Error state
+//   if (error) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="text-center">
+//           <div className="text-red-500 text-6xl mb-4">⚠️</div>
+//           <h2 className="text-2xl font-bold mb-2">Error Loading Projects</h2>
+//           <p className="text-gray-600 dark:text-gray-400">{error}</p>
+//           <button 
+//             onClick={() => window.location.reload()} 
+//             className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+//           >
+//             Retry
+//           </button>
+//         </div>
+//       </div>
+//     );
+//   }
 
 //   return (
 //     <div className="min-h-screen pb-16">
@@ -309,17 +408,29 @@
 //                       <img 
 //                         src={project.client.profile} 
 //                         alt={project.client.name} 
-//                         className="w-10 h-10 rounded-full mr-3"
+//                         className="w-10 h-10 rounded-full mr-3 object-cover border-2 border-gray-200 dark:border-gray-600"
+//                         onLoad={(e) => {
+//                           console.log('Image loaded successfully:', e.target.src);
+//                         }}
+//                         onError={(e) => {
+//                           console.error('Image failed to load:', e.target.src);
+//                           e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.client.name)}&background=3b82f6&color=ffffff&size=40`;
+//                         }}
 //                       />
 //                       <div>
 //                         <p className="text-sm text-gray-600 dark:text-gray-400">{project.client.name}</p>
 //                         <div className="flex items-center">
 //                           <div className="flex text-yellow-400">
-//                             {[...Array(Math.floor(project.client.rating))].map((_, i) => (
+//                             {[...Array(Math.floor(project.client.rating || 0))].map((_, i) => (
 //                               <FaStar key={i} size={12} />
 //                             ))}
+//                             {[...Array(5 - Math.floor(project.client.rating || 0))].map((_, i) => (
+//                               <FaStar key={i} size={12} className="text-gray-300" />
+//                             ))}
 //                           </div>
-//                           <span className="text-xs ml-1 text-gray-500 dark:text-gray-400">({project.client.rating})</span>
+//                           <span className="text-xs ml-1 text-gray-500 dark:text-gray-400">
+//                             ({project.client.rating || 0}) • {project.client.totalReviews || 0} reviews
+//                           </span>
 //                         </div>
 //                       </div>
 //                     </div>
@@ -333,6 +444,11 @@
 //                           {skill}
 //                         </span>
 //                       ))}
+//                       {project.skills.length > 3 && (
+//                         <span className={`${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'} text-xs px-2 py-1 rounded-full`}>
+//                           +{project.skills.length - 3} more
+//                         </span>
+//                       )}
 //                     </div>
                     
 //                     <div className="flex justify-between items-center text-sm mt-auto">
@@ -349,6 +465,13 @@
 //                         {project.duration}
 //                       </span>
 //                     </div>
+                    
+//                     <button
+//                       onClick={(e) => handleOpenBidModal(e, project)}
+//                       className="mt-4 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+//                     >
+//                       Submit Proposal
+//                     </button>
 //                   </div>
 //                 ))}
 //               </div>
@@ -431,16 +554,20 @@
 
 // export default BrowsePage;
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaMoneyBillWave, FaCode, FaClock, FaFilter, FaStar, FaSearch, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaMoneyBillWave, FaCode, FaClock, FaFilter, FaStar, FaSearch, FaChevronDown, FaChevronUp, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import ProjectModal from '../Modals/ProjectBidModal';
-import { allProjects } from '../components/AllProject';
 
 const BrowsePage = ({ darkMode }) => {
-  const navigate = useNavigate(); // Add this for navigation
+  const navigate = useNavigate();
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [bookmarks, setBookmarks] = useState({}); // Track bookmark status for each project
+  const [bookmarkLoading, setBookmarkLoading] = useState({}); // Track loading state for bookmark operations
   const [bidDetails, setBidDetails] = useState({
     bidPrice: '',
     timeToComplete: '',
@@ -452,23 +579,214 @@ const BrowsePage = ({ darkMode }) => {
     duration: '', 
     skill: '',
     searchQuery: '',
-    sortBy: 'newest' // Default sort
+    sortBy: 'newest'
   });
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 9;
+
+  // Get current user ID from localStorage or context
+  const getCurrentUserId = () => {
+    // Replace this with your actual authentication logic
+    return localStorage.getItem('id'); // Fallback for demo
+  };
+
+  const getCurrentUserEmail = () => {
+    // Replace this with your actual authentication logic
+    return localStorage.getItem('email'); // Fallback for demo
+  };
+
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/projects/with-profiles');
+        const result = await response.json();
+        
+        if (result.success) {
+          setProjects(result.data);
+          // After fetching projects, check bookmark status for each
+          await checkBookmarkStatus(result.data);
+        } else {
+          setError('Failed to fetch projects');
+        }
+      } catch (err) {
+        setError('Error fetching projects: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  // Check bookmark status for all projects
+  const checkBookmarkStatus = async (projectList) => {
+    const userId = getCurrentUserId();
+    const bookmarkStatus = {};
+
+    try {
+      // Check bookmark status for each project
+      const bookmarkChecks = projectList.map(async (project) => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/bookmarks/check/${userId}/${project._id}`);
+          const result = await response.json();
+          if (result.success) {
+            bookmarkStatus[project._id] = result.isBookmarked;
+          }
+        } catch (err) {
+          console.error(`Error checking bookmark for project ${project._id}:`, err);
+          bookmarkStatus[project._id] = false;
+        }
+      });
+
+      await Promise.all(bookmarkChecks);
+      setBookmarks(bookmarkStatus);
+    } catch (err) {
+      console.error('Error checking bookmark status:', err);
+    }
+  };
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = async (e, projectId) => {
+    e.stopPropagation();
+    
+    const userId = getCurrentUserId();
+    const userEmail = getCurrentUserEmail();
+
+    // Set loading state for this specific bookmark
+    setBookmarkLoading(prev => ({
+      ...prev,
+      [projectId]: true
+    }));
+
+    try {
+      const response = await fetch('http://localhost:5000/api/bookmarks/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId,
+          userId,
+          userEmail
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update bookmark status in local state
+        setBookmarks(prev => ({
+          ...prev,
+          [projectId]: result.bookmarked
+        }));
+
+        // Show success message (you can replace this with a toast notification)
+        console.log(result.message);
+      } else {
+        console.error('Bookmark operation failed:', result.message);
+        // You could show an error toast here
+      }
+    } catch (err) {
+      console.error('Error toggling bookmark:', err);
+      // You could show an error toast here
+    } finally {
+      // Remove loading state
+      setBookmarkLoading(prev => ({
+        ...prev,
+        [projectId]: false
+      }));
+    }
+  };
+
+  // Handle bid submission with bookmark removal
+  const handleBidSubmit = async () => {
+    const userId = getCurrentUserId();
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/projects/place_bid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: selectedProject.id,
+          freelancerId: userId,
+          price: bidDetails.bidPrice,
+          estimatedTime: bidDetails.timeToComplete,
+          description: bidDetails.backgroundDescription
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log('Bid submitted successfully:', result);
+        
+        // If bookmark was automatically removed, update local state
+        if (result.bookmarkRemoved) {
+          setBookmarks(prev => ({
+            ...prev,
+            [selectedProject.id]: false
+          }));
+        }
+
+        // Reset bid details and close modal
+        setBidDetails({
+          bidPrice: '',
+          timeToComplete: '',
+          backgroundDescription: ''
+        });
+        setSelectedProject(null);
+        
+        // Show success message
+        alert('Bid submitted successfully! Bookmark automatically removed.');
+      } else {
+        console.error('Bid submission failed:', result.message);
+        alert('Failed to submit bid: ' + result.message);
+      }
+    } catch (err) {
+      console.error('Error submitting bid:', err);
+      alert('Error submitting bid. Please try again.');
+    }
+  };
+
+  // Transform API data to match component expectations
+  const transformProject = (project) => ({
+    id: project._id,
+    title: project.title,
+    description: project.description,
+    budget: `$${project.budget_from} - $${project.budget_to}`,
+    type: project.project_type,
+    duration: project.project_duration,
+    skills: project.req_skills,
+    client: {
+      name: project.userProfile?.fullName || 'Unknown Client',
+      email: project.email,
+      profile: project.userProfile?.profilePhoto 
+        ? `http://localhost:5000${project.userProfile.profilePhoto}` 
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(project.userProfile?.fullName || 'Unknown')}&background=3b82f6&color=ffffff&size=40`,
+      rating: project.userProfile?.rating?.average || 0,
+      totalReviews: project.userProfile?.rating?.totalReviews || 0,
+      location: project.userProfile?.location || '',
+      title: project.userProfile?.title || ''
+    },
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt
+  });
 
   // Toggle filter expansion
   const toggleFilterExpansion = () => setIsFilterExpanded(prev => !prev);
 
   // Handle project selection for viewing details
   const handleProjectClick = (project) => {
-    // Navigate to project details page instead of opening modal
-    navigate(`/project/${project.id}`);
+    setSelectedProject(project);
   };
 
   // Handle opening bid modal separately
   const handleOpenBidModal = (e, project) => {
-    e.stopPropagation(); // Prevent the card click event from firing
+    e.stopPropagation();
     setSelectedProject(project);
   };
 
@@ -478,31 +796,17 @@ const BrowsePage = ({ darkMode }) => {
     setBidDetails(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle bid submission
-  const handleBidSubmit = () => {
-    console.log('Bid submitted:', bidDetails, 'for project:', selectedProject);
-    // Here you would typically send this data to your API
-    setSelectedProject(null);
-    setBidDetails({
-      bidPrice: '',
-      timeToComplete: '',
-      backgroundDescription: ''
-    });
-    // Show success notification
-    alert('Your bid has been successfully submitted!');
-  };
-
   // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   };
 
   // Handle search input
   const handleSearchChange = (e) => {
     setFilters(prev => ({ ...prev, searchQuery: e.target.value }));
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
   // Clear all filters
@@ -518,18 +822,27 @@ const BrowsePage = ({ darkMode }) => {
     setCurrentPage(1);
   };
 
-  // Get unique values for filters
+  // Get unique values for filters from API data
   const getUniqueValues = (key) => {
     if (key === 'skills') {
-      // Flatten the skills arrays and get unique values
-      const allSkills = allProjects.flatMap(project => project.skills);
+      const allSkills = projects.flatMap(project => project.req_skills || []);
       return [...new Set(allSkills)];
     }
-    return [...new Set(allProjects.map(project => project[key]))];
+    if (key === 'budget') {
+      return [...new Set(projects.map(project => `$${project.budget_from} - $${project.budget_to}`))];
+    }
+    if (key === 'type') {
+      return [...new Set(projects.map(project => project.project_type))];
+    }
+    if (key === 'duration') {
+      return [...new Set(projects.map(project => project.project_duration))];
+    }
+    return [];
   };
 
-  // Filter and sort projects based on selected filters, search query, and sort option
-  const filteredAndSortedProjects = allProjects
+  // Filter and sort projects
+  const filteredAndSortedProjects = projects
+    .map(transformProject)
     .filter(project => {
       const matchesSearch = !filters.searchQuery || 
         project.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
@@ -547,16 +860,18 @@ const BrowsePage = ({ darkMode }) => {
     .sort((a, b) => {
       switch (filters.sortBy) {
         case 'budget-high':
-          return parseInt(b.budget.split(' - ')[0].replace('$', '')) - 
-                 parseInt(a.budget.split(' - ')[0].replace('$', ''));
+          const aBudgetHigh = parseInt(a.budget.split(' - ')[1].replace('$', ''));
+          const bBudgetHigh = parseInt(b.budget.split(' - ')[1].replace('$', ''));
+          return bBudgetHigh - aBudgetHigh;
         case 'budget-low':
-          return parseInt(a.budget.split(' - ')[0].replace('$', '')) - 
-                 parseInt(b.budget.split(' - ')[0].replace('$', ''));
+          const aBudgetLow = parseInt(a.budget.split(' - ')[0].replace('$', ''));
+          const bBudgetLow = parseInt(b.budget.split(' - ')[0].replace('$', ''));
+          return aBudgetLow - bBudgetLow;
         case 'rating':
           return b.client.rating - a.client.rating;
         case 'newest':
         default:
-          return b.id - a.id; // Assuming higher ID means newer project
+          return new Date(b.createdAt) - new Date(a.createdAt);
       }
     });
 
@@ -582,6 +897,37 @@ const BrowsePage = ({ darkMode }) => {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg">Loading projects...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-2">Error Loading Projects</h2>
+          <p className="text-gray-600 dark:text-gray-400">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-16">
@@ -744,29 +1090,61 @@ const BrowsePage = ({ darkMode }) => {
                   <div 
                     key={project.id} 
                     className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow hover:shadow-xl transition-all duration-300 
-                      border-l-4 border-blue-500 dark:border-blue-400 cursor-pointer transform hover:-translate-y-1`} 
+                      border-l-4 border-blue-500 dark:border-blue-400 cursor-pointer transform hover:-translate-y-1 relative`} 
                     onClick={() => handleProjectClick(project)}
                   >
-                    <div className="flex items-center mb-4">
+                    {/* Bookmark Icon */}
+                    <button
+                      onClick={(e) => handleBookmarkToggle(e, project.id)}
+                      disabled={bookmarkLoading[project.id]}
+                      className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+                        bookmarks[project.id] 
+                          ? 'text-yellow-500 hover:text-yellow-600' 
+                          : 'text-gray-400 hover:text-yellow-500'
+                      } ${bookmarkLoading[project.id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title={bookmarks[project.id] ? 'Remove from bookmarks' : 'Add to bookmarks'}
+                    >
+                      {bookmarkLoading[project.id] ? (
+                        <div className="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full"></div>
+                      ) : bookmarks[project.id] ? (
+                        <FaBookmark size={16} />
+                      ) : (
+                        <FaRegBookmark size={16} />
+                      )}
+                    </button>
+
+                    <div className="flex items-center mb-4 pr-8">
                       <img 
                         src={project.client.profile} 
                         alt={project.client.name} 
-                        className="w-10 h-10 rounded-full mr-3"
+                        className="w-10 h-10 rounded-full mr-3 object-cover border-2 border-gray-200 dark:border-gray-600"
+                        onLoad={(e) => {
+                          console.log('Image loaded successfully:', e.target.src);
+                        }}
+                        onError={(e) => {
+                          console.error('Image failed to load:', e.target.src);
+                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.client.name)}&background=3b82f6&color=ffffff&size=40`;
+                        }}
                       />
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{project.client.name}</p>
                         <div className="flex items-center">
                           <div className="flex text-yellow-400">
-                            {[...Array(Math.floor(project.client.rating))].map((_, i) => (
+                            {[...Array(Math.floor(project.client.rating || 0))].map((_, i) => (
                               <FaStar key={i} size={12} />
                             ))}
+                            {[...Array(5 - Math.floor(project.client.rating || 0))].map((_, i) => (
+                              <FaStar key={i} size={12} className="text-gray-300" />
+                            ))}
                           </div>
-                          <span className="text-xs ml-1 text-gray-500 dark:text-gray-400">({project.client.rating})</span>
+                          <span className="text-xs ml-1 text-gray-500 dark:text-gray-400">
+                            ({project.client.rating || 0}) • {project.client.totalReviews || 0} reviews
+                          </span>
                         </div>
                       </div>
                     </div>
                     
-                    <h4 className="text-lg font-bold text-blue-700 dark:text-blue-400 mb-2">{project.title}</h4>
+                    <h4 className="text-lg font-bold text-blue-700 dark:text-blue-400 mb-2 pr-8">{project.title}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{project.description}</p>
                     
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -775,6 +1153,11 @@ const BrowsePage = ({ darkMode }) => {
                           {skill}
                         </span>
                       ))}
+                      {project.skills.length > 3 && (
+                        <span className={`${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'} text-xs px-2 py-1 rounded-full`}>
+                          +{project.skills.length - 3} more
+                        </span>
+                      )}
                     </div>
                     
                     <div className="flex justify-between items-center text-sm mt-auto">
@@ -792,7 +1175,6 @@ const BrowsePage = ({ darkMode }) => {
                       </span>
                     </div>
                     
-                    {/* Add a separate bid button on each card */}
                     <button
                       onClick={(e) => handleOpenBidModal(e, project)}
                       className="mt-4 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"

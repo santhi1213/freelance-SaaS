@@ -1,5 +1,5 @@
-// import React, { useState } from 'react';
-// import { Link } from 'react-router-dom';
+// import React, { useState, useEffect } from 'react';
+// import { Link, useNavigate } from 'react-router-dom';
 // import { 
 //   FaSearch, 
 //   FaFilter, 
@@ -14,13 +14,13 @@
 //   FaEllipsisH,
 //   FaRegCalendarAlt,
 //   FaTrashAlt,
-//   FaExternalLinkAlt
+//   FaExternalLinkAlt,
+//   FaSpinner
 // } from 'react-icons/fa';
 // import ProjectModal from '../Modals/ProjectBidModal';
 
-// import { bookmarkedProjects } from '../components/AllProject';
-
 // const BookmarksPage = ({ darkMode }) => {
+//   const navigate = useNavigate();
 //   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 //   const [filters, setFilters] = useState({ 
 //     budget: '', 
@@ -35,13 +35,120 @@
 //     timeToComplete: '',
 //     backgroundDescription: ''
 //   });
-//   const [projects, setProjects] = useState(bookmarkedProjects);
+  
+//   // API-related state
+//   const [bookmarks, setBookmarks] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [pagination, setPagination] = useState({
+//     currentPage: 1,
+//     totalPages: 0,
+//     totalBookmarks: 0,
+//     hasNext: false,
+//     hasPrev: false
+//   });
+//   const [loadingMore, setLoadingMore] = useState(false);
+
+//   // Get userId from localStorage, context, or wherever you store it
+//   const userId = localStorage.getItem('id'); // Adjust based on your auth implementation
+
+//   // Fetch bookmarks from API
+//   const fetchBookmarks = async (page = 1, append = false) => {
+//     try {
+//       if (!append) setLoading(true);
+//       else setLoadingMore(true);
+
+//       const response = await fetch(`http://localhost:5000/api/bookmarks/${userId}?page=${page}&limit=10`);
+//       const data = await response.json();
+
+//       if (data.success) {
+//         const formattedBookmarks = data.data.map(bookmark => ({
+//           id: bookmark.project._id,
+//           bookmarkId: bookmark.id,
+//           title: bookmark.project.title,
+//           description: bookmark.project.description,
+//           budget: `$${bookmark.project.budget_from} - $${bookmark.project.budget_to}`,
+//           type: bookmark.project.project_type,
+//           duration: bookmark.project.project_duration,
+//           skills: bookmark.project.req_skills || [],
+//           client: {
+//             name: bookmark.project.client.name,
+//             email: bookmark.project.client.email,
+//             profile: bookmark.project.client.profilePhoto || '/default-avatar.png',
+//             rating: 4.5, // You might want to fetch actual ratings
+//             title: bookmark.project.client.title,
+//             location: bookmark.project.client.location
+//           },
+//           bookmarkedOn: new Date(bookmark.bookmarkedAt).toLocaleDateString(),
+//           createdAt: bookmark.project.createdAt
+//         }));
+
+//         if (append) {
+//           setBookmarks(prev => [...prev, ...formattedBookmarks]);
+//         } else {
+//           setBookmarks(formattedBookmarks);
+//         }
+        
+//         setPagination(data.pagination);
+//       } else {
+//         setError(data.message);
+//       }
+//     } catch (err) {
+//       setError('Failed to fetch bookmarks');
+//       console.error('Error fetching bookmarks:', err);
+//     } finally {
+//       setLoading(false);
+//       setLoadingMore(false);
+//     }
+//   };
+
+//   // Remove bookmark from API
+//   const removeBookmark = async (bookmarkId) => {
+//     try {
+//       const response = await fetch(`http://localhost:5000/api/bookmarks/${bookmarkId}`, {
+//         method: 'DELETE'
+//       });
+      
+//       const data = await response.json();
+      
+//       if (data.success) {
+//         // Remove from local state
+//         setBookmarks(prev => prev.filter(bookmark => bookmark.bookmarkId !== bookmarkId));
+//         // Update pagination count
+//         setPagination(prev => ({
+//           ...prev,
+//           totalBookmarks: prev.totalBookmarks - 1
+//         }));
+//       } else {
+//         alert(data.message || 'Failed to remove bookmark');
+//       }
+//     } catch (err) {
+//       console.error('Error removing bookmark:', err);
+//       alert('Failed to remove bookmark');
+//     }
+//   };
+
+//   // Load initial bookmarks
+//   useEffect(() => {
+//     if (userId) {
+//       fetchBookmarks();
+//     } else {
+//       setError('User not authenticated');
+//       setLoading(false);
+//     }
+//   }, [userId]);
 
 //   // Toggle filter expansion
 //   const toggleFilterExpansion = () => setIsFilterExpanded(prev => !prev);
 
-//   // Handle project selection for bidding
+//   // Handle project selection for viewing details
 //   const handleProjectClick = (project) => {
+//     navigate(`/project/${project.id}`);
+//   };
+
+//   // Handle opening bid modal separately
+//   const handleOpenBidModal = (e, project) => {
+//     e.stopPropagation();
 //     setSelectedProject(project);
 //   };
 
@@ -54,14 +161,12 @@
 //   // Handle bid submission
 //   const handleBidSubmit = () => {
 //     console.log('Bid submitted:', bidDetails, 'for project:', selectedProject);
-//     // Here you would typically send this data to your API
 //     setSelectedProject(null);
 //     setBidDetails({
 //       bidPrice: '',
 //       timeToComplete: '',
 //       backgroundDescription: ''
 //     });
-//     // Show success notification
 //     alert('Your bid has been successfully submitted!');
 //   };
 
@@ -87,18 +192,17 @@
 //     });
 //   };
 
-//   // Get unique values for filters
+//   // Get unique values for filters from current bookmarks
 //   const getUniqueValues = (key) => {
 //     if (key === 'skills') {
-//       // Flatten the skills arrays and get unique values
-//       const allSkills = bookmarkedProjects.flatMap(project => project.skills);
+//       const allSkills = bookmarks.flatMap(project => project.skills);
 //       return [...new Set(allSkills)];
 //     }
-//     return [...new Set(bookmarkedProjects.map(project => project[key]))];
+//     return [...new Set(bookmarks.map(project => project[key]))];
 //   };
 
 //   // Filter projects based on selected filters and search query
-//   const filteredProjects = projects.filter(project => {
+//   const filteredProjects = bookmarks.filter(project => {
 //     const matchesSearch = !filters.searchQuery || 
 //       project.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
 //       project.description.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
@@ -114,12 +218,48 @@
 //   });
 
 //   // Remove project from bookmarks
-//   const handleRemoveBookmark = (projectId, e) => {
+//   const handleRemoveBookmark = (bookmarkId, e) => {
 //     e.stopPropagation();
 //     if (window.confirm('Are you sure you want to remove this project from your bookmarks?')) {
-//       setProjects(prev => prev.filter(project => project.id !== projectId));
+//       removeBookmark(bookmarkId);
 //     }
 //   };
+
+//   // Load more bookmarks
+//   const handleLoadMore = () => {
+//     if (pagination.hasNext && !loadingMore) {
+//       fetchBookmarks(pagination.currentPage + 1, true);
+//     }
+//   };
+
+//   // Loading state
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="text-center">
+//           <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
+//           <p className="text-lg">Loading your bookmarks...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // Error state
+//   if (error) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="text-center">
+//           <p className="text-lg text-red-600 mb-4">{error}</p>
+//           <button 
+//             onClick={() => fetchBookmarks()}
+//             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+//           >
+//             Retry
+//           </button>
+//         </div>
+//       </div>
+//     );
+//   }
 
 //   return (
 //     <div className="min-h-screen pb-16">
@@ -128,7 +268,7 @@
 //         <div className="container mx-auto px-4">
 //           <h1 className="text-3xl font-bold">Bookmarked Projects</h1>
 //           <p className={`mt-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-//             Browse and manage your saved projects
+//             Browse and manage your saved projects ({pagination.totalBookmarks} total)
 //           </p>
 //         </div>
 //       </div>
@@ -268,9 +408,9 @@
 //                 <div className="mb-6 flex justify-between items-center">
 //                   <h2 className="text-xl font-bold">{filteredProjects.length} Bookmarked Projects</h2>
 //                   <div className="text-sm">
-//                     {filteredProjects.length !== projects.length && (
+//                     {filteredProjects.length !== bookmarks.length && (
 //                       <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-//                         Showing {filteredProjects.length} of {projects.length} bookmarks
+//                         Showing {filteredProjects.length} of {bookmarks.length} bookmarks
 //                       </span>
 //                     )}
 //                   </div>
@@ -290,6 +430,9 @@
 //                             src={project.client.profile} 
 //                             alt={project.client.name} 
 //                             className="w-10 h-10 rounded-full mr-3"
+//                             onError={(e) => {
+//                               e.target.src = '/default-avatar.png';
+//                             }}
 //                           />
 //                           <div>
 //                             <p className="text-sm text-gray-600 dark:text-gray-400">{project.client.name}</p>
@@ -305,7 +448,7 @@
 //                         </div>
 //                         <div className="flex space-x-2">
 //                           <button
-//                             onClick={(e) => handleRemoveBookmark(project.id, e)} 
+//                             onClick={(e) => handleRemoveBookmark(project.bookmarkId, e)} 
 //                             className="text-red-500 hover:text-red-700 dark:hover:text-red-400"
 //                             title="Remove from bookmarks"
 //                           >
@@ -350,24 +493,48 @@
 //                           <FaRegCalendarAlt className="mr-1" />
 //                           Bookmarked on {project.bookmarkedOn}
 //                         </div>
-//                         <Link to="/browse" className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 flex items-center text-sm">
-//                           View Details <FaExternalLinkAlt size={12} className="ml-1" />
-//                         </Link>
+                        
+//                         <button
+//                           onClick={(e) => handleOpenBidModal(e, project)}
+//                           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+//                         >
+//                           Submit Proposal
+//                         </button>
 //                       </div>
 //                     </div>
 //                   ))}
 //                 </div>
+
+//                 {/* Load More Button */}
+//                 {pagination.hasNext && (
+//                   <div className="text-center mt-8">
+//                     <button
+//                       onClick={handleLoadMore}
+//                       disabled={loadingMore}
+//                       className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium flex items-center gap-2 mx-auto"
+//                     >
+//                       {loadingMore ? (
+//                         <>
+//                           <FaSpinner className="animate-spin" />
+//                           Loading...
+//                         </>
+//                       ) : (
+//                         'Load More Bookmarks'
+//                       )}
+//                     </button>
+//                   </div>
+//                 )}
 //               </div>
 //             ) : (
 //               <div className={`text-center py-16 ${darkMode ? 'bg-gray-800' : 'bg-gray-50'} rounded-xl`}>
 //                 <FaRegBookmark className="mx-auto text-gray-400" size={48} />
 //                 <h3 className="text-xl font-semibold mt-4 mb-2">No bookmarked projects found</h3>
 //                 <p className="text-gray-500 dark:text-gray-400 mb-6">
-//                   {searchQuery || filters.budget || filters.type || filters.duration || filters.skill
+//                   {filters.searchQuery || filters.budget || filters.type || filters.duration || filters.skill
 //                     ? 'Try adjusting your filters or search query'
 //                     : 'You haven\'t bookmarked any projects yet'}
 //                 </p>
-//                 {(searchQuery || filters.budget || filters.type || filters.duration || filters.skill) ? (
+//                 {(filters.searchQuery || filters.budget || filters.type || filters.duration || filters.skill) ? (
 //                   <button 
 //                     onClick={clearFilters}
 //                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
@@ -402,7 +569,7 @@
 
 // export default BookmarksPage;
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FaSearch, 
@@ -418,14 +585,13 @@ import {
   FaEllipsisH,
   FaRegCalendarAlt,
   FaTrashAlt,
-  FaExternalLinkAlt
+  FaExternalLinkAlt,
+  FaSpinner
 } from 'react-icons/fa';
 import ProjectModal from '../Modals/ProjectBidModal';
 
-import { bookmarkedProjects } from '../components/AllProject';
-
 const BookmarksPage = ({ darkMode }) => {
-  const navigate = useNavigate(); // Add this for navigation
+  const navigate = useNavigate();
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [filters, setFilters] = useState({ 
     budget: '', 
@@ -440,20 +606,123 @@ const BookmarksPage = ({ darkMode }) => {
     timeToComplete: '',
     backgroundDescription: ''
   });
-  const [projects, setProjects] = useState(bookmarkedProjects);
+  
+  // API-related state
+  const [bookmarks, setBookmarks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    totalBookmarks: 0,
+    hasNext: false,
+    hasPrev: false
+  });
+  const [loadingMore, setLoadingMore] = useState(false);
+  
+  // Track failed image loads to prevent infinite loops
+  const [failedImages, setFailedImages] = useState(new Set());
+
+  // Get userId from localStorage, context, or wherever you store it
+  const userId = localStorage.getItem('id'); // Adjust based on your auth implementation
+
+  // Fetch bookmarks from API
+  const fetchBookmarks = async (page = 1, append = false) => {
+    try {
+      if (!append) setLoading(true);
+      else setLoadingMore(true);
+
+      const response = await fetch(`http://localhost:5000/api/bookmarks/${userId}?page=${page}&limit=10`);
+      const data = await response.json();
+
+      if (data.success) {
+        const formattedBookmarks = data.data.map(bookmark => ({
+          id: bookmark.project._id,
+          bookmarkId: bookmark.id,
+          title: bookmark.project.title,
+          description: bookmark.project.description,
+          budget: `$${bookmark.project.budget_from} - $${bookmark.project.budget_to}`,
+          type: bookmark.project.project_type,
+          duration: bookmark.project.project_duration,
+          skills: bookmark.project.req_skills || [],
+          client: {
+            name: bookmark.project.client.name,
+            email: bookmark.project.client.email,
+            profile: bookmark.project.client.profilePhoto || '/default-avatar.png',
+            rating: 4.5, // You might want to fetch actual ratings
+            title: bookmark.project.client.title,
+            location: bookmark.project.client.location
+          },
+          bookmarkedOn: new Date(bookmark.bookmarkedAt).toLocaleDateString(),
+          createdAt: bookmark.project.createdAt
+        }));
+
+        if (append) {
+          setBookmarks(prev => [...prev, ...formattedBookmarks]);
+        } else {
+          setBookmarks(formattedBookmarks);
+        }
+        
+        setPagination(data.pagination);
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError('Failed to fetch bookmarks');
+      console.error('Error fetching bookmarks:', err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  // Remove bookmark from API
+  const removeBookmark = async (bookmarkId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/bookmarks/${bookmarkId}`, {
+        method: 'DELETE'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Remove from local state
+        setBookmarks(prev => prev.filter(bookmark => bookmark.bookmarkId !== bookmarkId));
+        // Update pagination count
+        setPagination(prev => ({
+          ...prev,
+          totalBookmarks: prev.totalBookmarks - 1
+        }));
+      } else {
+        alert(data.message || 'Failed to remove bookmark');
+      }
+    } catch (err) {
+      console.error('Error removing bookmark:', err);
+      alert('Failed to remove bookmark');
+    }
+  };
+
+  // Load initial bookmarks
+  useEffect(() => {
+    if (userId) {
+      fetchBookmarks();
+    } else {
+      setError('User not authenticated');
+      setLoading(false);
+    }
+  }, [userId]);
 
   // Toggle filter expansion
   const toggleFilterExpansion = () => setIsFilterExpanded(prev => !prev);
 
   // Handle project selection for viewing details
   const handleProjectClick = (project) => {
-    // Navigate to project details page
     navigate(`/project/${project.id}`);
   };
 
   // Handle opening bid modal separately
   const handleOpenBidModal = (e, project) => {
-    e.stopPropagation(); // Prevent the card click event from firing
+    e.stopPropagation();
     setSelectedProject(project);
   };
 
@@ -466,14 +735,12 @@ const BookmarksPage = ({ darkMode }) => {
   // Handle bid submission
   const handleBidSubmit = () => {
     console.log('Bid submitted:', bidDetails, 'for project:', selectedProject);
-    // Here you would typically send this data to your API
     setSelectedProject(null);
     setBidDetails({
       bidPrice: '',
       timeToComplete: '',
       backgroundDescription: ''
     });
-    // Show success notification
     alert('Your bid has been successfully submitted!');
   };
 
@@ -499,18 +766,17 @@ const BookmarksPage = ({ darkMode }) => {
     });
   };
 
-  // Get unique values for filters
+  // Get unique values for filters from current bookmarks
   const getUniqueValues = (key) => {
     if (key === 'skills') {
-      // Flatten the skills arrays and get unique values
-      const allSkills = bookmarkedProjects.flatMap(project => project.skills);
+      const allSkills = bookmarks.flatMap(project => project.skills);
       return [...new Set(allSkills)];
     }
-    return [...new Set(bookmarkedProjects.map(project => project[key]))];
+    return [...new Set(bookmarks.map(project => project[key]))];
   };
 
   // Filter projects based on selected filters and search query
-  const filteredProjects = projects.filter(project => {
+  const filteredProjects = bookmarks.filter(project => {
     const matchesSearch = !filters.searchQuery || 
       project.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
@@ -526,12 +792,58 @@ const BookmarksPage = ({ darkMode }) => {
   });
 
   // Remove project from bookmarks
-  const handleRemoveBookmark = (projectId, e) => {
+  const handleRemoveBookmark = (bookmarkId, e) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to remove this project from your bookmarks?')) {
-      setProjects(prev => prev.filter(project => project.id !== projectId));
+      removeBookmark(bookmarkId);
     }
   };
+
+  // Load more bookmarks
+  const handleLoadMore = () => {
+    if (pagination.hasNext && !loadingMore) {
+      fetchBookmarks(pagination.currentPage + 1, true);
+    }
+  };
+
+  // Handle image error with fallback prevention
+  const handleImageError = (e, imageId) => {
+    // Prevent infinite loop by checking if we've already failed this image
+    if (!failedImages.has(imageId)) {
+      setFailedImages(prev => new Set(prev).add(imageId));
+      // Use a data URL for a simple avatar instead of another file
+      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNEM0Q5REYiLz4KPHBhdGggZD0iTTIwIDIwQzIyLjc2MTQgMjAgMjUgMTcuNzYxNCAyNSAxNUMyNSAxMi4yMzg2IDIyLjc2MTQgMTAgMjAgMTBDMTcuMjM4NiAxMCAxNSAxMi4yMzg2IDE1IDE1QzE1IDE3Ljc2MTQgMTcuMjM4NiAyMCAyMCAyMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDMwQzEwIDI1LjU4MTcgMTMuNTgxNyAyMiAxOCAyMkgyMkMyNi40MTgzIDIyIDMwIDI1LjU4MTcgMzAgMzBWMzJDMzAgMzMuMTA0NiAyOS4xMDQ2IDM0IDI4IDM0SDEyQzEwLjg5NTQgMzQgMTAgMzMuMTA0NiAxMCAzMlYzMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
+          <p className="text-lg">Loading your bookmarks...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => fetchBookmarks()}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-16">
@@ -540,7 +852,7 @@ const BookmarksPage = ({ darkMode }) => {
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold">Bookmarked Projects</h1>
           <p className={`mt-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Browse and manage your saved projects
+            Browse and manage your saved projects ({pagination.totalBookmarks} total)
           </p>
         </div>
       </div>
@@ -680,9 +992,9 @@ const BookmarksPage = ({ darkMode }) => {
                 <div className="mb-6 flex justify-between items-center">
                   <h2 className="text-xl font-bold">{filteredProjects.length} Bookmarked Projects</h2>
                   <div className="text-sm">
-                    {filteredProjects.length !== projects.length && (
+                    {filteredProjects.length !== bookmarks.length && (
                       <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-                        Showing {filteredProjects.length} of {projects.length} bookmarks
+                        Showing {filteredProjects.length} of {bookmarks.length} bookmarks
                       </span>
                     )}
                   </div>
@@ -702,6 +1014,7 @@ const BookmarksPage = ({ darkMode }) => {
                             src={project.client.profile} 
                             alt={project.client.name} 
                             className="w-10 h-10 rounded-full mr-3"
+                            onError={(e) => handleImageError(e, project.client.email)}
                           />
                           <div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{project.client.name}</p>
@@ -717,7 +1030,7 @@ const BookmarksPage = ({ darkMode }) => {
                         </div>
                         <div className="flex space-x-2">
                           <button
-                            onClick={(e) => handleRemoveBookmark(project.id, e)} 
+                            onClick={(e) => handleRemoveBookmark(project.bookmarkId, e)} 
                             className="text-red-500 hover:text-red-700 dark:hover:text-red-400"
                             title="Remove from bookmarks"
                           >
@@ -763,7 +1076,6 @@ const BookmarksPage = ({ darkMode }) => {
                           Bookmarked on {project.bookmarkedOn}
                         </div>
                         
-                        {/* Add a separate bid button */}
                         <button
                           onClick={(e) => handleOpenBidModal(e, project)}
                           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
@@ -774,6 +1086,26 @@ const BookmarksPage = ({ darkMode }) => {
                     </div>
                   ))}
                 </div>
+
+                {/* Load More Button */}
+                {pagination.hasNext && (
+                  <div className="text-center mt-8">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium flex items-center gap-2 mx-auto"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <FaSpinner className="animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        'Load More Bookmarks'
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className={`text-center py-16 ${darkMode ? 'bg-gray-800' : 'bg-gray-50'} rounded-xl`}>

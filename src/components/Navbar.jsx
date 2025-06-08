@@ -2,13 +2,36 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { SiFramework7 } from "react-icons/si";
 import { FaSnowman, FaBell, FaComments, FaMoon, FaSun } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick }) => {
+const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
   const location = useLocation();
-  
+  const navigate = useNavigate();
   // Check if the current path matches the given path
   const isActive = (path) => {
     return location.pathname === path;
+  };
+  const handleLogout = async () => {
+    try {
+      // Call API
+      await fetch('http://localhost:5000/api/auth/logout', {
+        credentials: 'include',
+      });
+  
+      // Clear auth tokens
+      localStorage.removeItem('token');
+      localStorage.removeItem('email')
+  
+      toast.success('Logged out successfully!');
+  
+      // Redirect to login
+      logged(false)
+      navigate('/login');
+    } catch (error) {
+      toast.error('Logout failed');
+      console.error('Logout error:', error);
+    }
   };
 
   return (
@@ -69,6 +92,14 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick }) => {
             Bookmarks
           </Link>
         </li>
+         <li>
+          <Link 
+            to="/uploaded-projects" 
+            className={`transition ${isActive('/uploaded-projects') ? 'text-blue-600' : 'hover:text-blue-600'}`}
+          >
+            Uploaded Projects
+          </Link>
+        </li>
       </ul>
 
       {/* Icons & Button */}
@@ -90,6 +121,7 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick }) => {
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" onClick={onPostProjectClick}>
           Post a Project
         </button>
+        <button onClick={handleLogout}>Logout</button>
         <Link to="/profile" className="text-blue-600 text-2xl cursor-pointer hover:scale-110 transition">
           <FaSnowman />
         </Link>
