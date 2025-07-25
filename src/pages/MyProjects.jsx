@@ -1137,22 +1137,13 @@ const useid = localStorage.getItem('id')
                   </div>
                 ) : error ? (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
-                    {/* <div className="text-red-500 text-5xl mb-4">⚠️</div>
-                    <h3 className="text-xl font-semibold mb-2 text-red-600">Error Loading Bids</h3>
-                    <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{error}</p>
-                    <button 
-                      onClick={fetchMyBids}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-                    >
-                      Try Again
-                    </button> */}
                     You haven't placed any Bids
                   </div>
                 ) : filteredProjects.length > 0 ? (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 w-[1200px]">
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className={`text-left ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} border-b border-gray-200 dark:border-gray-700`}>
+                        <thead className={`text-left ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} dark:border-gray-700`}>
                           <tr>
                             <th className="py-3 px-4 font-semibold text-sm">Project</th>
                             <th className="py-3 px-4 font-semibold text-sm">Client</th>
@@ -1163,9 +1154,9 @@ const useid = localStorage.getItem('id')
                             <th className="py-3 px-4 font-semibold text-sm"></th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className='border-t border-gray-200'>
                           {filteredProjects.map(bid => (
-                            <tr key={bid.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <tr key={bid.id} className="border-gray-50 dark:border-gray-700 bg-white hover:bg-gray-50 dark:hover:bg-gray-200 transition-colors">
                               <td className="py-4 px-4">
                                 <div>
                                   <div className="font-medium uppercase">{bid.projectTitle}</div>
