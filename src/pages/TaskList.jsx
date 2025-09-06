@@ -986,7 +986,7 @@ const TasklistPage = () => {
   });
 
   // API base URL
-  const API_BASE_URL = 'https://freelance-backend-0tw4.onrender.com/';
+  const API_BASE_URL = 'https://freelance-backend-0tw4.onrender.com';
 
   // Load projects and tasks based on user role
   const loadData = async () => {
