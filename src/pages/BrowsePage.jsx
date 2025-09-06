@@ -62,7 +62,7 @@
 //       name: project.userProfile?.fullName || 'Unknown Client',
 //       email: project.email,
 //       profile: project.userProfile?.profilePhoto 
-//         ? `http://localhost:5000${project.userProfile.profilePhoto}` 
+//         ? `https://freelance-backend-0tw4.onrender.com/${project.userProfile.profilePhoto}` 
 //         : `https://ui-avatars.com/api/?name=${encodeURIComponent(project.userProfile?.fullName || 'Unknown')}&background=3b82f6&color=ffffff&size=40`,
 //       rating: project.userProfile?.rating?.average || 0,
 //       totalReviews: project.userProfile?.rating?.totalReviews || 0,
@@ -765,7 +765,7 @@ const BrowsePage = ({ darkMode }) => {
       name: project.userProfile?.fullName || 'Unknown Client',
       email: project.email,
       profile: project.userProfile?.profilePhoto 
-        ? `http://localhost:5000${project.userProfile.profilePhoto}` 
+        ? `https://freelance-backend-0tw4.onrender.com/${project.userProfile.profilePhoto}` 
         : `https://ui-avatars.com/api/?name=${encodeURIComponent(project.userProfile?.fullName || 'Unknown')}&background=3b82f6&color=ffffff&size=40`,
       rating: project.userProfile?.rating?.average || 0,
       totalReviews: project.userProfile?.rating?.totalReviews || 0,

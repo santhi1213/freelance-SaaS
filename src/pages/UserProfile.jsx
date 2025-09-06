@@ -2723,7 +2723,7 @@ const ProfilePhotoSection = () => (
     <div className="relative">
       {userData.profilePhoto || photoPreview ? (
         <img
-          src={photoPreview || `http://localhost:5000${userData.profilePhoto}`} // ADD BASE URL
+          src={photoPreview || `https://freelance-backend-0tw4.onrender.com/${userData.profilePhoto}`} // ADD BASE URL
           alt="Profile"
           className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
           onError={(e) => {

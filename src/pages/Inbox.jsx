@@ -531,7 +531,7 @@ const InboxPage = ({ darkMode }) => {
   const fileInputRef = useRef(null);
 
   // API base URL - adjust this to match your backend
-  const API_BASE_URL = 'http://localhost:5000';
+  const API_BASE_URL = 'https://freelance-backend-0tw4.onrender.com/';
 
   // Initialize socket connection
   useEffect(() => {
