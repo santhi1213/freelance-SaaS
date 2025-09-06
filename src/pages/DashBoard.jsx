@@ -558,7 +558,7 @@ const DashboardPage = ({ darkMode }) => {
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch('http://localhost:5000/api/dashboard/analytics', {
+        const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/dashboard/analytics', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

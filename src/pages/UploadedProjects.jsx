@@ -120,7 +120,7 @@ const fetchMyProjects = async (page = 1) => {
   setLoading(true);
   setError(null);
   try {
-    const response = await fetch(`http://localhost:5000/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
+    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
       method: 'GET',
       headers: getHeaders()
     });
@@ -191,7 +191,7 @@ const fetchMyProjects = async (page = 1) => {
       
       const defaultMessage = message || (status === 'accepted' ? 'Your bid has been accepted!' : 'Thank you for your proposal.');
       
-      const response = await fetch(`http://localhost:5000/api/bids/${bidId}/status`, {
+      const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bids/${bidId}/status`, {
         method: 'PUT',
         headers: getHeaders(),
         body: JSON.stringify({
@@ -244,7 +244,7 @@ const handleCreateChat = async (bid) => {
       throw new Error('Freelancer information not available');
     }
 
-    const response = await fetch('http://localhost:5000/api/conversations/create', {
+    const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/conversations/create', {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({

@@ -16,7 +16,7 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
   const handleLogout = async () => {
     try {
       // Call API
-      await fetch('http://localhost:5000/api/auth/logout', {
+      await fetch('https://freelance-backend-0tw4.onrender.com/api/auth/logout', {
         credentials: 'include',
       });
   

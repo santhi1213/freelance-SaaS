@@ -744,7 +744,7 @@ const PostProjectModal = ({ onClose, darkMode, onProjectPost }) => {
   // API call to post project
   const postProjectToAPI = async (projectData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/post_project', {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/post_project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -798,7 +798,7 @@ const ProjectBidModal = ({ project, bidDetails, handleBidChange, onClose, darkMo
 //   };
 
 //   try {
-//     const res = await fetch('http://localhost:5000/api/projects/place_bid', {
+//     const res = await fetch('https://freelance-backend-0tw4.onrender.com/api/projects/place_bid', {
 //       method: 'POST',
 //       headers: { 'Content-Type': 'application/json' },
 //       body: JSON.stringify(bidData)
@@ -844,7 +844,7 @@ const handleBidSubmit = async () => {
   };
 
   try {
-    const res = await fetch('http://localhost:5000/api/projects/place_bid', {
+    const res = await fetch('https://freelance-backend-0tw4.onrender.com/api/projects/place_bid', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bidData)

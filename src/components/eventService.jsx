@@ -1,6 +1,6 @@
 import authApi from './authService';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://freelance-backend-0tw4.onrender.com/api';
 
 // Get all events (paginated)
 export const getEvents = async (page = 1, limit = 10, filters = {}) => {

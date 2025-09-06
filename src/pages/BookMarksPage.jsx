@@ -58,7 +58,7 @@
 //       if (!append) setLoading(true);
 //       else setLoadingMore(true);
 
-//       const response = await fetch(`http://localhost:5000/api/bookmarks/${userId}?page=${page}&limit=10`);
+//       const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bookmarks/${userId}?page=${page}&limit=10`);
 //       const data = await response.json();
 
 //       if (data.success) {
@@ -105,7 +105,7 @@
 //   // Remove bookmark from API
 //   const removeBookmark = async (bookmarkId) => {
 //     try {
-//       const response = await fetch(`http://localhost:5000/api/bookmarks/${bookmarkId}`, {
+//       const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bookmarks/${bookmarkId}`, {
 //         method: 'DELETE'
 //       });
       
@@ -632,7 +632,7 @@ const BookmarksPage = ({ darkMode }) => {
       if (!append) setLoading(true);
       else setLoadingMore(true);
 
-      const response = await fetch(`http://localhost:5000/api/bookmarks/${userId}?page=${page}&limit=10`);
+      const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bookmarks/${userId}?page=${page}&limit=10`);
       const data = await response.json();
 
       if (data.success) {
@@ -679,7 +679,7 @@ const BookmarksPage = ({ darkMode }) => {
   // Remove bookmark from API
   const removeBookmark = async (bookmarkId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/bookmarks/${bookmarkId}`, {
+      const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bookmarks/${bookmarkId}`, {
         method: 'DELETE'
       });
       

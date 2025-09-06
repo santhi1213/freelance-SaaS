@@ -31,7 +31,7 @@
 //     const fetchProjects = async () => {
 //       try {
 //         setLoading(true);
-//         const response = await fetch('http://localhost:5000/api/projects/with-profiles');
+//         const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/projects/with-profiles');
 //         const result = await response.json();
         
 //         if (result.success) {
@@ -600,7 +600,7 @@ const BrowsePage = ({ darkMode }) => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/projects/with-profiles');
+        const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/projects/with-profiles');
         const result = await response.json();
         
         if (result.success) {
@@ -629,7 +629,7 @@ const BrowsePage = ({ darkMode }) => {
       // Check bookmark status for each project
       const bookmarkChecks = projectList.map(async (project) => {
         try {
-          const response = await fetch(`http://localhost:5000/api/bookmarks/check/${userId}/${project._id}`);
+          const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bookmarks/check/${userId}/${project._id}`);
           const result = await response.json();
           if (result.success) {
             bookmarkStatus[project._id] = result.isBookmarked;
@@ -661,7 +661,7 @@ const BrowsePage = ({ darkMode }) => {
     }));
 
     try {
-      const response = await fetch('http://localhost:5000/api/bookmarks/toggle', {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/bookmarks/toggle', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -705,7 +705,7 @@ const BrowsePage = ({ darkMode }) => {
     const userId = getCurrentUserId();
     
     try {
-      const response = await fetch('http://localhost:5000/api/projects/place_bid', {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/projects/place_bid', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

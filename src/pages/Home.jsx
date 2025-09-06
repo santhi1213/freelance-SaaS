@@ -20,7 +20,7 @@ const HomePage = ({ darkMode }) => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/get_projects');
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/get_projects');
       if (!response.ok) {
         throw new Error('Failed to fetch projects');
       }

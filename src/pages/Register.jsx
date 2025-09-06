@@ -48,7 +48,7 @@ const Register = () => {
   
       const { confirmPassword, ...registerData } = formData;
   
-      const res = await axios.post('http://localhost:5000/api/auth/register', registerData, {
+      const res = await axios.post('https://freelance-backend-0tw4.onrender.com/api/auth/register', registerData, {
         withCredentials: true
       });
   

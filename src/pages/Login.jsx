@@ -35,7 +35,7 @@ const Login = ({logged}) => {
     try {
       setLoading(true);
       
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('https://freelance-backend-0tw4.onrender.com/api/auth/login', {
         email,
         password,
       });

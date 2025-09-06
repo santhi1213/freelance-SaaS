@@ -148,7 +148,7 @@ const AddTaskModal = ({
         formDataToSend.append('attachments', file);
       });
 
-      const response = await fetch('http://localhost:5000/api/tasks', {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/tasks', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

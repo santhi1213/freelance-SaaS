@@ -1167,7 +1167,7 @@
 //         return;
 //       }
 
-//       const response = await fetch('http://localhost:5000/api/profile', {
+//       const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile', {
 //         method: 'GET',
 //         headers: {
 //           'Authorization': `Bearer ${token}`,
@@ -1261,7 +1261,7 @@
 //   //       gender: updatedData.gender
 //   //     };
 
-//   //     const response = await fetch('http://localhost:5000/api/profile', {
+//   //     const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile', {
 //   //       method: 'POST',
 //   //       headers: {
 //   //         'Authorization': `Bearer ${token}`,
@@ -2644,7 +2644,7 @@ const ProfilePage = ({ darkMode }) => {
     
     const token = getAuthToken();
     
-    const response = await fetch('http://localhost:5000/api/profile', {
+    const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile', {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -2695,7 +2695,7 @@ const handlePhotoUpload = async () => {
   const handlePhotoDelete = async () => {
     try {
       const token = getAuthToken();
-      const response = await fetch('http://localhost:5000/api/profile/photo', {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile/photo', {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -2814,7 +2814,7 @@ const ProfilePhotoSection = () => (
   //       return;
   //     }
 
-  //     const response = await fetch('http://localhost:5000/api/profile', {
+  //     const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile', {
   //       method: 'GET',
   //       headers: {
   //         'Authorization': `Bearer ${token}`,
@@ -2869,7 +2869,7 @@ const ProfilePhotoSection = () => (
       return;
     }
 
-    const response = await fetch('http://localhost:5000/api/profile', {
+    const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -3023,7 +3023,7 @@ const ProfilePhotoSection = () => (
 
     console.log('Sending profile data:', cleanedData); // DEBUG LOG
 
-    const response = await fetch('http://localhost:5000/api/profile', {
+    const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/profile', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

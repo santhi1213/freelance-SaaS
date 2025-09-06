@@ -47,7 +47,7 @@ const role = localStorage.getItem('role')
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/projects/myBids', {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/projects/myBids', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const fetchMyProjects = async (page = 1) => {
   setLoading(true);
   setError(null);
   try {
-    const response = await fetch(`http://localhost:5000/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
+    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
       method: 'GET',
       headers: getHeaders()
     });
