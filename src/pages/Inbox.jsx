@@ -649,15 +649,14 @@ const InboxPage = ({ darkMode }) => {
       console.error('Error fetching conversation details:', error);
     }
   };
-
+const id = localStorage.getItem('id')
   // Fetch chat statistics
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/chat/stats`, {
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`${API_BASE_URL}/api/chat/stats?userId=${id}`, {
+        // headers: {
+        //   'Authorization': `Bearer ${localStorage.getItem('token')}`
+        // }
       });
 
       if (!response.ok) {

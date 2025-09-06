@@ -56,11 +56,20 @@ const Register = () => {
         setCurrentUser(res.data.data.user);
         localStorage.setItem('token', res.data.data.token);
         toast.success('Registration successful');
-  
-        if (res.data.data.user.role === 'client') {
-          navigate('/client/dashboard');
-        } else if (res.data.data.user.role === 'freelancer') {
-          navigate('/freelancer/dashboard');
+        console.log(res);
+        
+        if (res.data.user.role === 'client') {
+          navigate('/login');
+          localStorage.setItem('role', 'client');
+          localStorage.setItem('email', res.data.user.email);
+          toast.success('Welcome Freelancer!');
+          localStorage.setItem('username', res.data.user.fullName);
+        } else if (res.data.user.role === 'freelancer') {
+          localStorage.setItem('role', 'freelancer');
+          localStorage.setItem('email', res.data.user.email);
+          toast.success('Welcome Freelancer!');
+          localStorage.setItem('username', res.data.user.fullName);
+          navigate('/login');
         } else {
           navigate('/');
         }

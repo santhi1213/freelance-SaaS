@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const role = localStorage.getItem('role')
   // Check if the current path matches the given path
   const isActive = (path) => {
     return location.pathname === path;
@@ -44,14 +45,16 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
 
       {/* Navigation Links */}
       <ul className="hidden md:flex space-x-6 font-medium">
-        <li>
-          <Link 
-            to="/browse" 
-            className={`transition ${isActive('/browse') ? 'text-blue-600' : 'hover:text-blue-600'}`}
-          >
-            Browse
-          </Link>
-        </li>
+        {role === 'freelancer' && (
+          <li>
+            <Link 
+              to="/browse" 
+              className={`transition ${isActive('/browse') ? 'text-blue-600' : 'hover:text-blue-600'}`}
+            >
+              Browse
+            </Link>
+          </li>
+        )}
         <li>
           <Link 
             to="/dashboard" 
@@ -84,22 +87,26 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
             Inbox
           </Link>
         </li>
-        <li>
-          <Link 
-            to="/bookmarks" 
-            className={`transition ${isActive('/bookmarks') ? 'text-blue-600' : 'hover:text-blue-600'}`}
-          >
-            Bookmarks
-          </Link>
-        </li>
-         <li>
-          <Link 
-            to="/uploaded-projects" 
-            className={`transition ${isActive('/uploaded-projects') ? 'text-blue-600' : 'hover:text-blue-600'}`}
-          >
-            Uploaded Projects
-          </Link>
-        </li>
+        {role === 'freelancer' && (
+          <li>
+            <Link 
+              to="/bookmarks" 
+              className={`transition ${isActive('/bookmarks') ? 'text-blue-600' : 'hover:text-blue-600'}`}
+            >
+              Bookmarks
+            </Link>
+          </li>
+        )}
+        {role === 'client' && (
+          <li>
+            <Link 
+              to="/uploaded-projects" 
+              className={`transition ${isActive('/uploaded-projects') ? 'text-blue-600' : 'hover:text-blue-600'}`}
+            >
+              Uploaded Projects
+            </Link>
+          </li>
+        )}
       </ul>
 
       {/* Icons & Button */}
@@ -117,10 +124,12 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
         <button onClick={toggleDarkMode} className="text-xl hover:text-yellow-500">
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
+      {role === 'client' && (
 
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" onClick={onPostProjectClick}>
           Post a Project
         </button>
+      )} 
         <button onClick={handleLogout}>Logout</button>
         <Link to="/profile" className="text-blue-600 text-2xl cursor-pointer hover:scale-110 transition">
           <FaSnowman />

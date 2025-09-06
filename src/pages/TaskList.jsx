@@ -1,516 +1,1482 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  FaFilter, 
-  FaSearch, 
-  FaChevronDown, 
-  FaChevronUp, 
-  FaPlus, 
-  FaTasks, 
-  FaCalendarAlt, 
-  FaExclamationCircle, 
-  FaCheck, 
-  FaHourglassHalf,
-  FaCircle,
-  FaEdit,
-  FaTrashAlt,
-  FaSort
-} from 'react-icons/fa';
-import { myTasks } from '../components/AllProject';
+// import { useState, useEffect } from "react";
+// import { 
+//   FaUser, FaFilter, FaChevronUp, FaSearch, FaTasks, FaCircle, 
+//   FaEye, FaPlay, FaPlus, FaTimes, FaCheck, FaUpload, 
+//   FaExclamationTriangle, FaChevronDown, FaHourglassHalf, FaSpinner,
+//   FaPaperclip, FaImage
+// } from "react-icons/fa";
 
-const TasklistPage = ({ darkMode }) => {
-  const [tasks, setTasks] = useState(myTasks);
+// const TasklistPage = () => {
+//   // Get user role from localStorage
+//   const userRole = localStorage.getItem('role') || 'client';
+//   const token = localStorage.getItem('token');
+//   const userId = localStorage.getItem('id') || '';
+  
+//   // State management
+//   const [currentUser, setCurrentUser] = useState({
+//     id: '',
+//     role: userRole,
+//     email: '',
+//     fullName: ''
+//   });
+  
+//   const [tasks, setTasks] = useState([]);
+//   const [projects, setProjects] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [selectedProject, setSelectedProject] = useState(null);
+  
+//   // Filter and search state
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+//   const [filters, setFilters] = useState({
+//     project: '',
+//     priority: '',
+//     status: '',
+//     assignedTo: ''
+//   });
+//   const [sortBy, setSortBy] = useState('createdAt');
+//   const [sortOrder, setSortOrder] = useState('desc');
+  
+//   // Modal states
+//   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+//   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
+//   const [showCompletionProofModal, setShowCompletionProofModal] = useState(false);
+//   const [selectedTask, setSelectedTask] = useState(null);
+  
+//   // Form states
+//   const [newTask, setNewTask] = useState({
+//     title: '',
+//     description: '',
+//     priority: 'Medium',
+//     dueDate: '',
+//     projectId: '',
+//     bidId: '',
+//     assignedTo: ''
+//   });
+  
+//   const [completionProof, setCompletionProof] = useState({
+//     description: '',
+//     attachments: []
+//   });
+
+//   // Status update state
+//   const [statusUpdateData, setStatusUpdateData] = useState({
+//     status: 'completed',
+//     description: '',
+//     attachments: []
+//   });
+
+//   // API base URL
+//   const API_BASE_URL = 'http://localhost:5000';
+
+//   // Load projects for clients
+//   const loadProjects = async () => {
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/api/freelancer/projects`, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           'userId': userId
+//         })
+//       });
+      
+//       const data = await response.json();
+      
+//       if (!response.ok) {
+//         throw new Error(data.message || 'Failed to load projects');
+//       }
+      
+//       setProjects(data.data || []);
+      
+//       // Automatically select the first project if available
+//       if (data.data && data.data.length > 0) {
+//         setSelectedProject(data.data[0]);
+//         loadProjectTasks(data.data[0]._id);
+//         setFilters(prev => ({ ...prev, project: data.data[0]._id }));
+//       }
+//     } catch (error) {
+//       setError('Failed to load projects');
+//       console.error('Error loading projects:', error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     loadProjects();
+//   }, []);
+
+//   const loadProjectTasks = async (projectId) => {
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/tasks`);
+//       const data = await response.json();
+//       setTasks(data.data || []);
+//     } catch (error) {
+//       console.error('Error loading project tasks:', error);
+//     }
+//   };
+
+//   const loadTaskDetails = async (taskId) => {
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`);
+//       const data = await response.json();
+//       setSelectedTask(data.data);
+//       setShowTaskDetailsModal(true);
+//     } catch (error) {
+//       console.error('Error loading task details:', error);
+//     }
+//   };
+
+//   const handleStatusUpdate = async (taskId, status, description = '', attachments = []) => {
+//     setLoading(true);
+//     try {
+//       const formData = new FormData();
+//       formData.append('status', status);
+      
+//       if (description) {
+//         formData.append('description', description);
+//       }
+      
+//       // Append attachments if any
+//       attachments.forEach((file, index) => {
+//         formData.append('attachments', file);
+//       });
+      
+//       const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/status`, {
+//   method: 'PUT',
+//   headers: {
+//     'Authorization': `Bearer ${token}`,
+//     'Content-Type': 'application/json',   
+//   },
+//   body: JSON.stringify({
+//     status: status,
+//     rejectedReason: 'Not enough details'
+//   })
+// });
+
+      
+//       const data = await response.json();
+      
+//       if (!response.ok) {
+//         throw new Error(data.message || 'Failed to update task status');
+//       }
+      
+//       // Refresh tasks list
+//       if (selectedProject) {
+//         loadProjectTasks(selectedProject._id);
+//       }
+      
+//       // Close modals
+//       setShowCompletionProofModal(false);
+//       setShowTaskDetailsModal(false);
+      
+//       // Reset status update data
+//       setStatusUpdateData({
+//         status: 'completed',
+//         description: '',
+//         attachments: []
+//       });
+      
+//       alert('Task status updated successfully!');
+//     } catch (error) {
+//       setError(error.message || 'Failed to update task status');
+//       console.error('Error updating task status:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleFileUpload = (e) => {
+//     const files = Array.from(e.target.files);
+//     setStatusUpdateData(prev => ({
+//       ...prev,
+//       attachments: [...prev.attachments, ...files]
+//     }));
+//   };
+
+//   const removeAttachment = (index) => {
+//     setStatusUpdateData(prev => ({
+//       ...prev,
+//       attachments: prev.attachments.filter((_, i) => i !== index)
+//     }));
+//   };
+
+//   // Utility functions
+//   const getStatusInfo = (status) => {
+//     switch (status) {
+//       case 'completed':
+//         return { 
+//           color: 'text-green-600', 
+//           bgColor: 'bg-green-100',
+//           icon: <FaCheck className="mr-2" /> 
+//         };
+//       case 'in_progress':
+//         return { 
+//           color: 'text-blue-600', 
+//           bgColor: 'bg-blue-100',
+//           icon: <FaHourglassHalf className="mr-2" /> 
+//         };
+//       case 'rejected':
+//         return { 
+//           color: 'text-red-600', 
+//           bgColor: 'bg-red-100',
+//           icon: <FaTimes className="mr-2" /> 
+//         };
+//       default:
+//         return { 
+//           color: 'text-gray-600', 
+//           bgColor: 'bg-gray-100',
+//           icon: <FaCircle className="mr-2" size={8} /> 
+//         };
+//     }
+//   };
+
+//   const getPriorityColor = (priority) => {
+//     switch (priority) {
+//       case 'High': return 'text-red-500 bg-red-100';
+//       case 'Medium': return 'text-yellow-500 bg-yellow-100';
+//       case 'Low': return 'text-green-500 bg-green-100';
+//       default: return 'text-gray-500 bg-gray-100';
+//     }
+//   };
+
+//   const formatDate = (dateString) => {
+//     if (!dateString) return 'No date set';
+//     return new Date(dateString).toLocaleDateString('en-US', {
+//       year: 'numeric',
+//       month: 'short',
+//       day: 'numeric'
+//     });
+//   };
+
+//   const isOverdue = (dueDate, status) => {
+//     return dueDate && status !== 'completed' && new Date(dueDate) < new Date();
+//   };
+
+//   if (!token) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+//         <div className="text-center">
+//           <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+//           <p className="text-gray-600">Please log in to access the task management system.</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-50">
+//       {/* Header */}
+//       <div className="bg-white shadow-sm border-b">
+//         <div className="container mx-auto px-4 py-6">
+//           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+//             <div>
+//               <h1 className="text-3xl font-bold text-gray-900">Task Management</h1>
+//               <p className="text-gray-600 mt-1">
+//                 {currentUser.role === 'client' 
+//                   ? 'Create and manage tasks for your projects' 
+//                   : 'View and complete assigned tasks from your accepted projects'}
+//               </p>
+//             </div>
+//           </div>
+          
+//           {/* Role indicator */}
+//           <div className="mt-4">
+//             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+//               currentUser.role === 'client' 
+//                 ? 'bg-blue-100 text-blue-800' 
+//                 : 'bg-green-100 text-green-800'
+//             }`}>
+//               <FaUser className="mr-1" />
+//               {currentUser.role === 'client' ? 'Client' : 'Freelancer'}
+//             </span>
+//             {currentUser.role === 'freelancer' && projects.length > 0 && (
+//               <span className="ml-2 text-sm text-gray-600">
+//                 {projects.length} accepted project{projects.length !== 1 ? 's' : ''}
+//               </span>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Error Message */}
+//       {error && (
+//         <div className="container mx-auto px-4 py-4">
+//           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+//             {error}
+//             <button 
+//               onClick={() => setError('')}
+//               className="float-right font-bold text-red-700 hover:text-red-900"
+//             >
+//               ×
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       <div className="container mx-auto px-4 py-8">
+//         <div className="flex flex-col lg:flex-row gap-8">
+//           {/* Projects List */}
+//           <div className="lg:w-1/4">
+//             <div className="bg-white p-4 rounded-lg shadow">
+//               <h2 className="text-lg font-medium text-gray-900 mb-4">Projects</h2>
+//               {projects.length > 0 ? (
+//                 <div className="space-y-2">
+//                   {projects.map(project => (
+//                     <div 
+//                       key={project._id} 
+//                       className={`p-3 rounded-lg cursor-pointer border ${
+//                         selectedProject && selectedProject._id === project._id 
+//                           ? 'bg-blue-100 border-blue-400' 
+//                           : 'bg-white border-gray-200 hover:bg-gray-50'
+//                       }`}
+//                       onClick={() => {
+//                         setSelectedProject(project);
+//                         loadProjectTasks(project._id);
+//                         setFilters(prev => ({ ...prev, project: project._id }));
+//                       }}
+//                     >
+//                       <h3 className="font-semibold text-gray-800">{project.title}</h3>
+//                       <p className="text-sm text-gray-600">
+//                         {project.description ? project.description.substring(0, 60) + (project.description.length > 60 ? '...' : '') : 'No description'}
+//                       </p>
+//                     </div>
+//                   ))}
+//                 </div>
+//               ) : (
+//                 <div className="text-gray-500 text-center py-4">No Projects Available For you Currently</div>
+//               )}
+//             </div>
+//           </div>
+
+//           {/* Tasks List */}
+//           <div className="lg:w-3/4">
+//             <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+//               {loading ? (
+//                 <div className="p-12 text-center">
+//                   <FaSpinner className="animate-spin mx-auto text-blue-600 text-4xl mb-4" />
+//                   <p className="text-gray-500">Loading tasks...</p>
+//                 </div>
+//               ) : tasks.length > 0 ? (
+//                 <div className="overflow-x-auto">
+//                   <table className="w-full">
+//                     <thead className="bg-gray-50 border-b border-gray-200">
+//                       <tr>
+//                         <th 
+//                           className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+//                           onClick={() => {
+//                             if (sortBy === 'title') {
+//                               setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+//                             } else {
+//                               setSortBy('title');
+//                               setSortOrder('asc');
+//                             }
+//                           }}
+//                         >
+//                           <div className="flex items-center gap-2">
+//                             Task
+//                             {sortBy === 'title' && (
+//                               sortOrder === 'asc' ? <FaChevronUp className="text-blue-600" /> : <FaChevronDown className="text-blue-600" />
+//                             )}
+//                           </div>
+//                         </th>
+//                         <th 
+//                           className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+//                           onClick={() => {
+//                             if (sortBy === 'priority') {
+//                               setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+//                             } else {
+//                               setSortBy('priority');
+//                               setSortOrder('asc');
+//                             }
+//                           }}
+//                         >
+//                           <div className="flex items-center gap-2">
+//                             Priority
+//                             {sortBy === 'priority' && (
+//                               sortOrder === 'asc' ? <FaChevronUp className="text-blue-600" /> : <FaChevronDown className="text-blue-600" />
+//                             )}
+//                           </div>
+//                         </th>
+//                         <th 
+//                           className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+//                           onClick={() => {
+//                             if (sortBy === 'status') {
+//                               setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+//                             } else {
+//                               setSortBy('status');
+//                               setSortOrder('asc');
+//                             }
+//                           }}
+//                         >
+//                           <div className="flex items-center gap-2">
+//                             Status
+//                             {sortBy === 'status' && (
+//                               sortOrder === 'asc' ? <FaChevronUp className="text-blue-600" /> : <FaChevronDown className="text-blue-600" />
+//                             )}
+//                           </div>
+//                         </th>
+//                         <th 
+//                           className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+//                           onClick={() => {
+//                             if (sortBy === 'dueDate') {
+//                               setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+//                             } else {
+//                               setSortBy('dueDate');
+//                               setSortOrder('asc');
+//                             }
+//                           }}
+//                         >
+//                           <div className="flex items-center gap-2">
+//                             Due Date
+//                             {sortBy === 'dueDate' && (
+//                               sortOrder === 'asc' ? <FaChevronUp className="text-blue-600" /> : <FaChevronDown className="text-blue-600" />
+//                             )}
+//                           </div>
+//                         </th>
+//                         {currentUser.role === 'client' && (
+//                           <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                             Assigned To
+//                           </th>
+//                         )}
+//                         <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                           Actions
+//                         </th>
+//                       </tr>
+//                     </thead>
+//                     <tbody className="bg-white divide-y divide-gray-200">
+//                       {tasks.map((task) => {
+//                         const statusInfo = getStatusInfo(task.status);
+//                         const priorityColor = getPriorityColor(task.priority);
+//                         const overdue = isOverdue(task.dueDate, task.status);
+                        
+//                         return (
+//                           <tr 
+//                             key={task._id} 
+//                             className={`hover:bg-gray-50 transition-colors ${overdue ? 'bg-red-50' : ''}`}
+//                           >
+//                             <td className="px-6 py-4 whitespace-nowrap">
+//                               <div className="flex flex-col">
+//                                 <div className="text-sm font-medium text-gray-900 mb-1">
+//                                   {task.title}
+//                                 </div>
+//                                 {task.description && (
+//                                   <div className="text-sm text-gray-500 truncate max-w-xs">
+//                                     {task.description}
+//                                   </div>
+//                                 )}
+//                                 {overdue && (
+//                                   <div className="flex items-center mt-1">
+//                                     <FaExclamationTriangle className="text-red-500 mr-1 text-xs" />
+//                                     <span className="text-xs text-red-600 font-medium">Overdue</span>
+//                                   </div>
+//                                 )}
+//                               </div>
+//                             </td>
+//                             <td className="px-6 py-4 whitespace-nowrap">
+//                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${priorityColor}`}>
+//                                 {task.priority}
+//                               </span>
+//                             </td>
+//                             <td className="px-6 py-4 whitespace-nowrap">
+//                               <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${statusInfo.bgColor} ${statusInfo.color}`}>
+//                                 {statusInfo.icon}
+//                                 {task.status.replace('_', ' ').toUpperCase()}
+//                               </span>
+//                             </td>
+//                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+//                               <div className={overdue ? 'text-red-600 font-medium' : ''}>
+//                                 {formatDate(task.dueDate)}
+//                               </div>
+//                             </td>
+//                             {currentUser.role === 'client' && (
+//                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+//                                 {task.assignedTo ? task.assignedTo.fullName : 'Unassigned'}
+//                               </td>
+//                             )}
+
+//                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+//                               <div className="flex items-center justify-end gap-2">
+//                                 <button
+//                                   onClick={() => loadTaskDetails(task._id)}
+//                                   className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+//                                   title="View Details"
+//                                 >
+//                                   <FaEye />
+//                                 </button>
+                                
+//                                 {/* Freelancer actions */}
+//                                 {currentUser.role === 'freelancer' && task.status === 'pending' && (
+//                                   <button
+//                                     onClick={() => handleStatusUpdate(task._id, 'in_progress')}
+//                                     className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+//                                     title="Start Task"
+//                                     disabled={loading}
+//                                   >
+//                                     <FaPlay />
+//                                   </button>
+//                                 )}
+                                
+//                                 {/* {currentUser.role === 'freelancer' && task.status === 'in_progress' && (
+//                                   <button
+//                                     onClick={() => {
+//                                       setSelectedTask(task);
+//                                       setShowCompletionProofModal(true);
+//                                     }}
+//                                     className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+//                                     title="Submit Completion Proof"
+//                                   >
+//                                     <FaUpload />
+//                                   </button>
+//                                 )} */}
+                                
+//                                 {/* Client actions */}
+//                                 {currentUser.role === 'client' && task.status === 'completed' && (
+//                                   <div className="flex gap-1">
+//                                     <button
+//                                       onClick={() => handleStatusUpdate(task._id, 'approved')}
+//                                       className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+//                                       title="Approve Task"
+//                                       disabled={loading}
+//                                     >
+//                                       <FaCheck />
+//                                     </button>
+//                                     <button
+//                                       onClick={() => {
+//                                         const reason = prompt('Please provide a reason for rejection:');
+//                                         if (reason) {
+//                                           handleStatusUpdate(task._id, 'rejected', reason);
+//                                         }
+//                                       }}
+//                                       className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+//                                       title="Reject Task"
+//                                       disabled={loading}
+//                                     >
+//                                       <FaTimes />
+//                                     </button>
+//                                   </div>
+//                                 )}
+//                               </div>
+//                             </td>
+//                           </tr>
+//                         );
+//                       })}
+//                     </tbody>
+//                   </table>
+//                 </div>
+//               ) : (
+//                 <div className="p-12 text-center">
+//                   <div className="text-gray-400 mb-4">
+//                     <FaTasks className="mx-auto text-6xl mb-4" />
+//                   </div>
+//                   <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+//                   <p className="text-gray-500 mb-4">
+//                     {searchQuery || Object.values(filters).some(f => f) 
+//                       ? 'Try adjusting your filters or search query'
+//                       : currentUser.role === 'client' 
+//                         ? 'Create your first task to get started'
+//                         : 'No tasks have been assigned to you yet'
+//                     }
+//                   </p>
+//                   {currentUser.role === 'client' && !searchQuery && !Object.values(filters).some(f => f) && (
+//                     <button 
+//                       onClick={() => setShowCreateTaskModal(true)}
+//                       className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+//                     >
+//                       <FaPlus className="mr-2" />
+//                       Create Your First Task
+//                     </button>
+//                   )}
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Task Details Modal */}
+//       {showTaskDetailsModal && selectedTask && (
+//         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+//           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+//             <div className="flex items-center justify-between mb-6">
+//               <h3 className="text-xl font-bold text-gray-900">Task Details</h3>
+//               <button
+//                 onClick={() => setShowTaskDetailsModal(false)}
+//                 className="text-gray-400 hover:text-gray-600"
+//               >
+//                 <FaTimes size={20} />
+//               </button>
+//             </div>
+            
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//               {/* Left Column */}
+//               <div className="space-y-4">
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Title</h4>
+//                   <p className="text-lg font-semibold text-gray-900">{selectedTask.title}</p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Description</h4>
+//                   <p className="text-gray-700">{selectedTask.description || 'No description provided'}</p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Project</h4>
+//                   <p className="text-gray-700">{selectedTask.project?.title || 'N/A'}</p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Bid Details</h4>
+//                   <div className="bg-gray-50 p-3 rounded-md">
+//                     <p className="text-gray-700"><span className="font-medium">Amount:</span> ${selectedTask.bid?.amount || 'N/A'}</p>
+//                     <p className="text-gray-700"><span className="font-medium">Delivery Time:</span> {selectedTask.bid?.deliveryTime || 'N/A'}</p>
+//                     <p className="text-gray-700"><span className="font-medium">Cover Letter:</span> {selectedTask.bid?.coverLetter || 'N/A'}</p>
+//                   </div>
+//                 </div>
+//               </div>
+              
+//               {/* Right Column */}
+//               <div className="space-y-4">
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div>
+//                     <h4 className="text-sm font-medium text-gray-500 mb-1">Status</h4>
+//                     <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusInfo(selectedTask.status).bgColor} ${getStatusInfo(selectedTask.status).color}`}>
+//                       {getStatusInfo(selectedTask.status).icon}
+//                       {selectedTask.status.replace('_', ' ').toUpperCase()}
+//                     </span>
+//                   </div>
+                  
+//                   <div>
+//                     <h4 className="text-sm font-medium text-gray-500 mb-1">Priority</h4>
+//                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(selectedTask.priority)}`}>
+//                       {selectedTask.priority}
+//                     </span>
+//                   </div>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Due Date</h4>
+//                   <p className={`text-gray-700 ${isOverdue(selectedTask.dueDate, selectedTask.status) ? 'text-red-600 font-medium' : ''}`}>
+//                     {formatDate(selectedTask.dueDate)}
+//                     {isOverdue(selectedTask.dueDate, selectedTask.status) && (
+//                       <span className="ml-2 text-xs text-red-600">(Overdue)</span>
+//                     )}
+//                   </p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Assigned To</h4>
+//                   <p className="text-gray-700">
+//                     {selectedTask.assignedTo ? (
+//                       <span>{selectedTask.assignedTo.fullName} ({selectedTask.assignedTo.email})</span>
+//                     ) : (
+//                       'Unassigned'
+//                     )}
+//                   </p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Assigned By</h4>
+//                   <p className="text-gray-700">
+//                     {selectedTask.assignedBy ? (
+//                       <span>{selectedTask.assignedBy.fullName} ({selectedTask.assignedBy.email})</span>
+//                     ) : (
+//                       'N/A'
+//                     )}
+//                   </p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Created Date</h4>
+//                   <p className="text-gray-700">{formatDate(selectedTask.createdAt)}</p>
+//                 </div>
+                
+//                 <div>
+//                   <h4 className="text-sm font-medium text-gray-500 mb-1">Last Updated</h4>
+//                   <p className="text-gray-700">{formatDate(selectedTask.updatedAt)}</p>
+//                 </div>
+//               </div>
+//             </div>
+            
+//             <div className="mt-6 pt-4 border-t border-gray-200">
+//               <h4 className="text-sm font-medium text-gray-500 mb-2">Completion Proof</h4>
+//               {selectedTask.completionProof && selectedTask.completionProof.attachments && selectedTask.completionProof.attachments.length > 0 ? (
+//                 <div className="bg-gray-50 p-3 rounded-md">
+//                   <p className="text-gray-700 mb-2">Attachments:</p>
+//                   <ul className="list-disc list-inside text-sm text-gray-600">
+//                     {selectedTask.completionProof.attachments.map((attachment, index) => (
+//                       <li key={index}>{attachment.name || `Attachment ${index + 1}`}</li>
+//                     ))}
+//                   </ul>
+//                 </div>
+//               ) : (
+//                 <p className="text-gray-500 italic">No completion proof submitted yet.</p>
+//               )}
+//             </div>
+            
+//             {/* Status Update Section for Freelancers */}
+//             {currentUser.role === 'freelancer' && selectedTask.status === 'in_progress' && (
+//               <div className="mt-6 pt-4 border-t border-gray-200">
+//                 <h4 className="text-sm font-medium text-gray-500 mb-3">Mark Task as Complete</h4>
+//                 <div className="bg-blue-50 p-4 rounded-md">
+//                   <div className="mb-3">
+//                     <label className="block text-sm font-medium text-gray-700 mb-1">
+//                       Description (Optional)
+//                     </label>
+//                     <textarea
+//                       value={statusUpdateData.description}
+//                       onChange={(e) => setStatusUpdateData(prev => ({ ...prev, description: e.target.value }))}
+//                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+//                       rows="3"
+//                       placeholder="Add any details about the completed work..."
+//                     />
+//                   </div>
+                  
+//                   <div className="mb-3">
+//                     <label className="block text-sm font-medium text-gray-700 mb-1">
+//                       Attach Screenshots or Files
+//                     </label>
+//                     <div className="flex items-center justify-center w-full">
+//                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+//                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
+//                           <FaPaperclip className="w-8 h-8 mb-3 text-gray-400" />
+//                           <p className="mb-2 text-sm text-gray-500">Click to upload or drag and drop</p>
+//                           <p className="text-xs text-gray-500">PNG, JPG, PDF (Max 10MB)</p>
+//                         </div>
+//                         <input 
+//                           type="file" 
+//                           className="hidden" 
+//                           multiple
+//                           onChange={handleFileUpload}
+//                           accept="image/*,.pdf"
+//                         />
+//                       </label>
+//                     </div>
+//                   </div>
+                  
+//                   {statusUpdateData.attachments.length > 0 && (
+//                     <div className="mb-4">
+//                       <p className="text-sm font-medium text-gray-700 mb-2">Selected files:</p>
+//                       <ul className="space-y-2">
+//                         {statusUpdateData.attachments.map((file, index) => (
+//                           <li key={index} className="flex items-center justify-between bg-white p-2 rounded border">
+//                             <div className="flex items-center">
+//                               <FaImage className="text-gray-400 mr-2" />
+//                               <span className="text-sm text-gray-700 truncate max-w-xs">{file.name}</span>
+//                             </div>
+//                             <button
+//                               onClick={() => removeAttachment(index)}
+//                               className="text-red-500 hover:text-red-700 ml-2"
+//                             >
+//                               <FaTimes />
+//                             </button>
+//                           </li>
+//                         ))}
+//                       </ul>
+//                     </div>
+//                   )}
+                  
+//                   <button
+//                     onClick={() => handleStatusUpdate(
+//                       selectedTask._id, 
+//                       'completed', 
+//                       statusUpdateData.description,
+//                       statusUpdateData.attachments
+//                     )}
+//                     disabled={loading}
+//                     className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium disabled:bg-gray-400"
+//                   >
+//                     {loading ? 'Submitting...' : 'Mark as Complete'}
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+            
+//             <div className="flex justify-end mt-6">
+//               <button
+//                 onClick={() => setShowTaskDetailsModal(false)}
+//                 className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md font-medium"
+//               >
+//                 Close
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Completion Proof Modal */}
+//       {showCompletionProofModal && selectedTask && (
+//         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+//           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
+//             <div className="flex items-center justify-between mb-4">
+//               <h3 className="text-lg font-medium text-gray-900">Submit Completion Proof</h3>
+//               <button
+//                 onClick={() => setShowCompletionProofModal(false)}
+//                 className="text-gray-400 hover:text-gray-600"
+//               >
+//                 <FaTimes />
+//               </button>
+//             </div>
+            
+//             <div className="space-y-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Description
+//                 </label>
+//                 <textarea
+//                   value={completionProof.description}
+//                   onChange={(e) => setCompletionProof(prev => ({ ...prev, description: e.target.value }))}
+//                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+//                   rows="4"
+//                   placeholder="Describe the work you've completed..."
+//                 />
+//               </div>
+              
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Attach Files
+//                 </label>
+//                 <div className="flex items-center justify-center w-full">
+//                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+//                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
+//                       <FaPaperclip className="w-8 h-8 mb-3 text-gray-400" />
+//                       <p className="mb-2 text-sm text-gray-500">Click to upload or drag and drop</p>
+//                       <p className="text-xs text-gray-500">PNG, JPG, PDF (Max 10MB)</p>
+//                     </div>
+//                     <input 
+//                       type="file" 
+//                       className="hidden" 
+//                       multiple
+//                       onChange={(e) => {
+//                         const files = Array.from(e.target.files);
+//                         setCompletionProof(prev => ({
+//                           ...prev,
+//                           attachments: [...prev.attachments, ...files]
+//                         }));
+//                       }}
+//                       accept="image/*,.pdf"
+//                     />
+//                   </label>
+//                 </div>
+//               </div>
+              
+//               {completionProof.attachments.length > 0 && (
+//                 <div>
+//                   <p className="text-sm text-gray-600 mb-1">Selected files:</p>
+//                   <ul className="space-y-2">
+//                     {completionProof.attachments.map((file, index) => (
+//                       <li key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+//                         <span className="text-sm text-gray-700 truncate max-w-xs">{file.name}</span>
+//                         <button
+//                           onClick={() => setCompletionProof(prev => ({
+//                             ...prev,
+//                             attachments: prev.attachments.filter((_, i) => i !== index)
+//                           }))}
+//                           className="text-red-500 hover:text-red-700 ml-2"
+//                         >
+//                           <FaTimes />
+//                         </button>
+//                       </li>
+//                     ))}
+//                   </ul>
+//                 </div>
+//               )}
+//             </div>
+            
+//             <div className="flex justify-end space-x-2 mt-6">
+//               <button
+//                 onClick={() => setShowCompletionProofModal(false)}
+//                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={() => handleStatusUpdate(
+//                   selectedTask._id, 
+//                   'completed', 
+//                   completionProof.description,
+//                   completionProof.attachments
+//                 )}
+//                 disabled={loading || !completionProof.description.trim()}
+//                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 rounded-md"
+//               >
+//                 {loading ? 'Submitting...' : 'Submit Completion Proof'}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default TasklistPage;
+
+import { useState, useEffect } from "react";
+import { 
+  FaUser, FaFilter, FaChevronUp, FaSearch, FaTasks, FaCircle, 
+  FaEye, FaPlay, FaPlus, FaTimes, FaCheck, FaUpload, 
+  FaExclamationTriangle, FaChevronDown, FaHourglassHalf, FaSpinner,
+  FaPaperclip, FaImage
+} from "react-icons/fa";
+
+const TasklistPage = () => {
+  // Get user details from localStorage
+  const userRole = localStorage.getItem('role') || 'client';
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('id') || '';
+  const userEmail = localStorage.getItem('email') || '';
+  
+  // State management
+  const [currentUser, setCurrentUser] = useState({
+    id: userId,
+    role: userRole,
+    email: userEmail,
+    fullName: ''
+  });
+  
+  const [tasks, setTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]); // Store all tasks for filtering
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedProject, setSelectedProject] = useState(null);
+  
+  // Filter and search state
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [filters, setFilters] = useState({
     project: '',
     priority: '',
-    status: ''
+    status: '',
+    assignedTo: ''
   });
-  const [sortBy, setSortBy] = useState('deadline');
-  const [sortOrder, setSortOrder] = useState('asc');
-  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+  
+  // Modal states
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
+  const [showCompletionProofModal, setShowCompletionProofModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  
+  // Form states
   const [newTask, setNewTask] = useState({
     title: '',
-    project: '',
-    deadline: '',
+    description: '',
     priority: 'Medium',
-    status: 'Not Started',
-    description: ''
+    dueDate: '',
+    projectId: '',
+    bidId: '',
+    assignedTo: ''
   });
-  const [editingTask, setEditingTask] = useState(null);
+  
+  const [completionProof, setCompletionProof] = useState({
+    description: '',
+    attachments: []
+  });
 
-  // Get unique values for filters
-  const getUniqueValues = (key) => {
-    return [...new Set(myTasks.map(task => task[key]))];
-  };
+  // Status update state
+  const [statusUpdateData, setStatusUpdateData] = useState({
+    status: 'completed',
+    description: '',
+    attachments: []
+  });
 
-  // Toggle filter expansion
-  const toggleFilterExpansion = () => setIsFilterExpanded(prev => !prev);
+  // API base URL
+  const API_BASE_URL = 'http://localhost:5000';
 
-  // Handle filter changes
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Handle search input
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  // Clear all filters
-  const clearFilters = () => {
-    setFilters({
-      project: '',
-      priority: '',
-      status: ''
-    });
-    setSearchQuery('');
-  };
-
-  // Toggle sort order
-  const handleSort = (field) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('asc');
+  // Load projects and tasks based on user role
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      if (currentUser.role === 'client') {
+        // For clients - load tasks they created using the new API
+        await loadClientTasks();
+      } else {
+        // For freelancers - load projects they're assigned to
+        await loadFreelancerProjects();
+      }
+    } catch (error) {
+      setError(`Failed to load ${currentUser.role === 'client' ? 'tasks' : 'projects'}`);
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle new task input changes
-  const handleNewTaskChange = (e) => {
-    const { name, value } = e.target;
-    setNewTask(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Add a new task
-  const handleAddTask = () => {
-    const taskToAdd = {
-      ...newTask,
-      id: Math.max(...tasks.map(task => task.id)) + 1
-    };
-    
-    setTasks(prev => [...prev, taskToAdd]);
-    setNewTask({
-      title: '',
-      project: '',
-      deadline: '',
-      priority: 'Medium',
-      status: 'Not Started',
-      description: ''
-    });
-    setShowAddTaskModal(false);
-  };
-
-  // Edit a task
-  const handleEditTask = (task) => {
-    setEditingTask(task);
-    setNewTask({
-      title: task.title,
-      project: task.project,
-      deadline: task.deadline,
-      priority: task.priority,
-      status: task.status,
-      description: task.description
-    });
-    setShowAddTaskModal(true);
-  };
-
-  // Update a task
-  const handleUpdateTask = () => {
-    setTasks(prev => 
-      prev.map(task => 
-        task.id === editingTask.id ? { ...task, ...newTask } : task
-      )
-    );
-    setEditingTask(null);
-    setNewTask({
-      title: '',
-      project: '',
-      deadline: '',
-      priority: 'Medium',
-      status: 'Not Started',
-      description: ''
-    });
-    setShowAddTaskModal(false);
-  };
-
-  // Delete a task
-  const handleDeleteTask = (taskId) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      setTasks(prev => prev.filter(task => task.id !== taskId));
-    }
-  };
-
-  // Mark task as completed
-  const handleMarkComplete = (taskId) => {
-    setTasks(prev => 
-      prev.map(task => 
-        task.id === taskId ? { ...task, status: 'Completed' } : task
-      )
-    );
-  };
-
-  // Filter and sort tasks
-  const filteredAndSortedTasks = tasks
-    .filter(task => {
-      const matchesSearch = !searchQuery || 
-        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchQuery.toLowerCase());
+  // Load tasks created by client
+  const loadClientTasks = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${userEmail}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      return (
-        matchesSearch &&
-        (!filters.project || task.project === filters.project) &&
-        (!filters.priority || task.priority === filters.priority) &&
-        (!filters.status || task.status === filters.status)
-      );
-    })
-    .sort((a, b) => {
-      // Convert deadline strings to Date objects for comparison
-      const getDateValue = (dateStr) => {
-        const [month, day, year] = dateStr.split(' ');
-        const monthMap = {
-          'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
-          'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
-        };
-        return new Date(parseInt(year), monthMap[month], parseInt(day));
-      };
+      const data = await response.json();
       
-      let valueA, valueB;
-      
-      switch (sortBy) {
-        case 'deadline':
-          valueA = getDateValue(a.deadline);
-          valueB = getDateValue(b.deadline);
-          break;
-        case 'priority':
-          const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
-          valueA = priorityOrder[a.priority];
-          valueB = priorityOrder[b.priority];
-          break;
-        case 'status':
-          const statusOrder = { 'Not Started': 0, 'In Progress': 1, 'Completed': 2 };
-          valueA = statusOrder[a.status];
-          valueB = statusOrder[b.status];
-          break;
-        default:
-          valueA = a[sortBy];
-          valueB = b[sortBy];
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to load tasks');
       }
       
-      if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1;
-      if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-  // Get priority color
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'High':
-        return 'text-red-500';
-      case 'Medium':
-        return 'text-yellow-500';
-      case 'Low':
-        return 'text-green-500';
-      default:
-        return 'text-gray-500';
+      const tasksData = data.data?.tasks || [];
+      setAllTasks(tasksData);
+      setTasks(tasksData);
+      
+      // Extract unique projects from tasks
+      const uniqueProjects = [];
+      const projectIds = new Set();
+      
+      tasksData.forEach(task => {
+        if (task.project && !projectIds.has(task.project._id)) {
+          uniqueProjects.push(task.project);
+          projectIds.add(task.project._id);
+        }
+      });
+      
+      setProjects(uniqueProjects);
+      
+      // Auto-select first project if available
+      if (uniqueProjects.length > 0) {
+        setSelectedProject(uniqueProjects[0]);
+        filterTasksByProject(uniqueProjects[0]._id, tasksData);
+      }
+    } catch (error) {
+      console.error('Error loading client tasks:', error);
+      throw error;
     }
   };
 
-  // Get status color and icon
+  // Load projects for freelancer
+  const loadFreelancerProjects = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/freelancer/projects`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          'userId': userId
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to load projects');
+      }
+      
+      setProjects(data.data || []);
+      
+      // Automatically select the first project if available
+      if (data.data && data.data.length > 0) {
+        setSelectedProject(data.data[0]);
+        loadProjectTasks(data.data[0]._id);
+        setFilters(prev => ({ ...prev, project: data.data[0]._id }));
+      }
+    } catch (error) {
+      console.error('Error loading freelancer projects:', error);
+      throw error;
+    }
+  };
+
+  // Filter tasks by selected project (for clients)
+  const filterTasksByProject = (projectId, tasksToFilter = allTasks) => {
+    const filteredTasks = tasksToFilter.filter(task => task.project && task.project._id === projectId);
+    setTasks(filteredTasks);
+  };
+
+  // Load tasks for a specific project (for freelancers)
+  const loadProjectTasks = async (projectId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/tasks`);
+      const data = await response.json();
+      setTasks(data.data || []);
+    } catch (error) {
+      console.error('Error loading project tasks:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userEmail && token) {
+      loadData();
+    }
+  }, [userEmail, token]);
+
+  const loadTaskDetails = async (taskId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`);
+      const data = await response.json();
+      setSelectedTask(data.data);
+      setShowTaskDetailsModal(true);
+    } catch (error) {
+      console.error('Error loading task details:', error);
+    }
+  };
+
+  const handleStatusUpdate = async (taskId, status, description = '', attachments = []) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',   
+        },
+        body: JSON.stringify({
+          status: status,
+          rejectedReason: description || 'Status updated'
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update task status');
+      }
+      
+      // Refresh tasks list
+      if (currentUser.role === 'client') {
+        loadClientTasks();
+      } else if (selectedProject) {
+        loadProjectTasks(selectedProject._id);
+      }
+      
+      // Close modals
+      setShowCompletionProofModal(false);
+      setShowTaskDetailsModal(false);
+      
+      // Reset status update data
+      setStatusUpdateData({
+        status: 'completed',
+        description: '',
+        attachments: []
+      });
+      
+      alert('Task status updated successfully!');
+    } catch (error) {
+      setError(error.message || 'Failed to update task status');
+      console.error('Error updating task status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setStatusUpdateData(prev => ({
+      ...prev,
+      attachments: [...prev.attachments, ...files]
+    }));
+  };
+
+  const removeAttachment = (index) => {
+    setStatusUpdateData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Handle project selection
+  const handleProjectSelection = (project) => {
+    setSelectedProject(project);
+    if (currentUser.role === 'client') {
+      filterTasksByProject(project._id);
+    } else {
+      loadProjectTasks(project._id);
+      setFilters(prev => ({ ...prev, project: project._id }));
+    }
+  };
+
+  // Utility functions
   const getStatusInfo = (status) => {
     switch (status) {
-      case 'Completed':
+      case 'completed':
         return { 
-          color: 'text-green-500', 
-          bgColor: darkMode ? 'bg-green-900 bg-opacity-20' : 'bg-green-100',
+          color: 'text-green-600', 
+          bgColor: 'bg-green-100',
           icon: <FaCheck className="mr-2" /> 
         };
-      case 'In Progress':
+      case 'in_progress':
         return { 
-          color: 'text-blue-500', 
-          bgColor: darkMode ? 'bg-blue-900 bg-opacity-20' : 'bg-blue-100',
+          color: 'text-blue-600', 
+          bgColor: 'bg-blue-100',
           icon: <FaHourglassHalf className="mr-2" /> 
         };
-      case 'Not Started':
+      case 'rejected':
         return { 
-          color: 'text-gray-500', 
-          bgColor: darkMode ? 'bg-gray-700' : 'bg-gray-200',
-          icon: <FaCircle className="mr-2" size={8} /> 
+          color: 'text-red-600', 
+          bgColor: 'bg-red-100',
+          icon: <FaTimes className="mr-2" /> 
         };
       default:
         return { 
-          color: 'text-gray-500', 
-          bgColor: darkMode ? 'bg-gray-700' : 'bg-gray-200',
+          color: 'text-gray-600', 
+          bgColor: 'bg-gray-100',
           icon: <FaCircle className="mr-2" size={8} /> 
         };
     }
   };
 
-  // Check if a task is past its deadline
-  const isPastDeadline = (deadlineStr) => {
-    const [month, day, year] = deadlineStr.split(' ');
-    const monthMap = {
-      'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
-      'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
-    };
-    const deadline = new Date(parseInt(year), monthMap[month], parseInt(day));
-    const today = new Date();
-    return deadline < today && !(
-      deadline.getDate() === today.getDate() && 
-      deadline.getMonth() === today.getMonth() && 
-      deadline.getFullYear() === today.getFullYear()
-    );
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'text-red-500 bg-red-100';
+      case 'medium': return 'text-yellow-500 bg-yellow-100';
+      case 'low': return 'text-green-500 bg-green-100';
+      default: return 'text-gray-500 bg-gray-100';
+    }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No date set';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const isOverdue = (dueDate, status) => {
+    return dueDate && status !== 'completed' && new Date(dueDate) < new Date();
+  };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+          <p className="text-gray-600">Please log in to access the task management system.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen pb-16">
-      {/* Page Header */}
-      <div className={`py-8 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-        <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Task List</h1>
-              <p className={`mt-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                Manage your tasks across all projects
+              <h1 className="text-3xl font-bold text-gray-900">Task Management</h1>
+              <p className="text-gray-600 mt-1">
+                {currentUser.role === 'client' 
+                  ? 'Manage tasks you have created for your projects' 
+                  : 'View and complete assigned tasks from your accepted projects'}
               </p>
             </div>
-            <button 
-              onClick={() => setShowAddTaskModal(true)}
-              className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              <FaPlus className="mr-2" />
-              Add New Task
-            </button>
+          </div>
+          
+          {/* Role indicator */}
+          <div className="mt-4">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+              currentUser.role === 'client' 
+                ? 'bg-blue-100 text-blue-800' 
+                : 'bg-green-100 text-green-800'
+            }`}>
+              <FaUser className="mr-1" />
+              {currentUser.role === 'client' ? 'Client' : 'Freelancer'}
+            </span>
+            {projects.length > 0 && (
+              <span className="ml-2 text-sm text-gray-600">
+                {projects.length} {currentUser.role === 'client' ? 'project' : 'accepted project'}{projects.length !== 1 ? 's' : ''}
+              </span>
+            )}
           </div>
         </div>
       </div>
-      
+
+      {/* Error Message */}
+      {error && (
+        <div className="container mx-auto px-4 py-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+            <button 
+              onClick={() => setError('')}
+              className="float-right font-bold text-red-700 hover:text-red-900"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filter Sidebar */}
+          {/* Projects List */}
           <div className="lg:w-1/4">
-            <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} shadow-lg rounded-xl overflow-hidden sticky top-24`}>
-              <div 
-                className="py-4 px-6 flex justify-between items-center cursor-pointer border-b border-gray-200 dark:border-gray-700"
-                onClick={toggleFilterExpansion}
-              >
-                <div className="flex items-center gap-2 font-semibold">
-                  <FaFilter className="text-blue-600 dark:text-blue-400" />
-                  <span>Filter Tasks</span>
-                </div>
-                <div>
-                  {isFilterExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                </div>
-              </div>
-              
-              {isFilterExpanded && (
-                <div className="p-6 space-y-6">
-                  {/* Search */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="search">
-                      Search
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        id="search"
-                        placeholder="Search tasks..."
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                          darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                        }`}
-                      />
-                      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="bg-white p-4 rounded-lg shadow">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">Projects</h2>
+              {projects.length > 0 ? (
+                <div className="space-y-2">
+                  {projects.map(project => (
+                    <div 
+                      key={project._id} 
+                      className={`p-3 rounded-lg cursor-pointer border ${
+                        selectedProject && selectedProject._id === project._id 
+                          ? 'bg-blue-100 border-blue-400' 
+                          : 'bg-white border-gray-200 hover:bg-gray-50'
+                      }`}
+                      onClick={() => handleProjectSelection(project)}
+                    >
+                      <h3 className="font-semibold text-gray-800">{project.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        {project.description ? project.description.substring(0, 60) + (project.description.length > 60 ? '...' : '') : 'No description'}
+                      </p>
+                      {currentUser.role === 'client' && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          {tasks.filter(task => task.project && task.project._id === project._id).length} tasks
+                        </p>
+                      )}
                     </div>
-                  </div>
-                  
-                  {/* Project Filter */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="project">
-                      Project
-                    </label>
-                    <select
-                      id="project"
-                      name="project"
-                      value={filters.project}
-                      onChange={handleFilterChange}
-                      className={`w-full p-2 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
-                    >
-                      <option value="">All Projects</option>
-                      {getUniqueValues('project').map((project, index) => (
-                        <option key={index} value={project}>{project}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Priority Filter */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="priority">
-                      Priority
-                    </label>
-                    <select
-                      id="priority"
-                      name="priority"
-                      value={filters.priority}
-                      onChange={handleFilterChange}
-                      className={`w-full p-2 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
-                    >
-                      <option value="">All Priorities</option>
-                      <option value="High">High</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Low">Low</option>
-                    </select>
-                  </div>
-                  
-                  {/* Status Filter */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" htmlFor="status">
-                      Status
-                    </label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={filters.status}
-                      onChange={handleFilterChange}
-                      className={`w-full p-2 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
-                    >
-                      <option value="">All Statuses</option>
-                      <option value="Not Started">Not Started</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Completed">Completed</option>
-                    </select>
-                  </div>
-                  
-                  {/* Clear Filters Button */}
-                  <button 
-                    onClick={clearFilters}
-                    className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
-                  >
-                    Clear All Filters
-                  </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-4">
+                  No Projects Available {currentUser.role === 'freelancer' ? 'For You Currently' : ''}
                 </div>
               )}
             </div>
           </div>
-          
-          {/* Tasks Table */}
+
+          {/* Tasks List */}
           <div className="lg:w-3/4">
-            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
-              {filteredAndSortedTasks.length > 0 ? (
+            <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+              {loading ? (
+                <div className="p-12 text-center">
+                  <FaSpinner className="animate-spin mx-auto text-blue-600 text-4xl mb-4" />
+                  <p className="text-gray-500">Loading tasks...</p>
+                </div>
+              ) : tasks.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className={`${darkMode ? 'bg-gray-700' : 'bg-gray-50'} border-b border-gray-200 dark:border-gray-700`}>
+                    <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
-                        <th className="py-3 px-4 text-left">
-                          <button 
-                            onClick={() => handleSort('title')}
-                            className="flex items-center font-semibold text-sm"
-                          >
-                            Task
-                            <FaSort className="ml-1 text-gray-400" />
-                          </button>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Task
                         </th>
-                        <th className="py-3 px-4 text-left">
-                          <button 
-                            onClick={() => handleSort('project')}
-                            className="flex items-center font-semibold text-sm"
-                          >
-                            Project
-                            <FaSort className="ml-1 text-gray-400" />
-                          </button>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Priority
                         </th>
-                        <th className="py-3 px-4 text-left">
-                          <button 
-                            onClick={() => handleSort('deadline')}
-                            className="flex items-center font-semibold text-sm"
-                          >
-                            Deadline
-                            <FaSort className="ml-1 text-gray-400" />
-                          </button>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
                         </th>
-                        <th className="py-3 px-4 text-left">
-                          <button 
-                            onClick={() => handleSort('priority')}
-                            className="flex items-center font-semibold text-sm"
-                          >
-                            Priority
-                            <FaSort className="ml-1 text-gray-400" />
-                          </button>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Due Date
                         </th>
-                        <th className="py-3 px-4 text-left">
-                          <button 
-                            onClick={() => handleSort('status')}
-                            className="flex items-center font-semibold text-sm"
-                          >
-                            Status
-                            <FaSort className="ml-1 text-gray-400" />
-                          </button>
+                        {currentUser.role === 'client' && (
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Assigned To
+                          </th>
+                        )}
+                        <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
                         </th>
-                        <th className="py-3 px-4 text-center">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {filteredAndSortedTasks.map((task) => {
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {tasks.map((task) => {
                         const statusInfo = getStatusInfo(task.status);
-                        const isOverdue = isPastDeadline(task.deadline) && task.status !== 'Completed';
+                        const priorityColor = getPriorityColor(task.priority);
+                        const overdue = isOverdue(task.dueDate, task.status);
                         
                         return (
-                          <tr key={task.id} className={`border-b border-gray-200 dark:border-gray-700 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
-                            <td className="py-4 px-4">
-                              <div className="font-medium">{task.title}</div>
-                              <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{task.description.length > 60 ? task.description.substring(0, 60) + '...' : task.description}</div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <span className="text-sm">{task.project}</span>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className={`flex items-center ${isOverdue ? 'text-red-500' : ''}`}>
-                                {isOverdue && <FaExclamationCircle className="mr-1" />}
-                                <FaCalendarAlt className="mr-2 text-blue-500" />
-                                <span className="text-sm">{task.deadline}</span>
+                          <tr 
+                            key={task._id} 
+                            className={`hover:bg-gray-50 transition-colors ${overdue ? 'bg-red-50' : ''}`}
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex flex-col">
+                                <div className="text-sm font-medium text-gray-900 mb-1">
+                                  {task.title}
+                                </div>
+                                {task.description && (
+                                  <div className="text-sm text-gray-500 truncate max-w-xs">
+                                    {task.description}
+                                  </div>
+                                )}
+                                {overdue && (
+                                  <div className="flex items-center mt-1">
+                                    <FaExclamationTriangle className="text-red-500 mr-1 text-xs" />
+                                    <span className="text-xs text-red-600 font-medium">Overdue</span>
+                                  </div>
+                                )}
                               </div>
-                              {isOverdue && <div className="text-xs text-red-500 mt-1">Overdue</div>}
                             </td>
-                            <td className="py-4 px-4">
-                              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${priorityColor}`}>
                                 {task.priority}
                               </span>
                             </td>
-                            <td className="py-4 px-4">
-                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color} ${statusInfo.bgColor}`}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${statusInfo.bgColor} ${statusInfo.color}`}>
                                 {statusInfo.icon}
-                                {task.status}
+                                {task.status.replace('_', ' ').toUpperCase()}
                               </span>
                             </td>
-                            <td className="py-4 px-4 text-center">
-                              <div className="flex items-center justify-center space-x-2">
-                                {task.status !== 'Completed' && (
-                                  <button 
-                                    onClick={() => handleMarkComplete(task.id)}
-                                    className="p-1 text-green-500 hover:text-green-700 dark:hover:text-green-400"
-                                    title="Mark as Complete"
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <div className={overdue ? 'text-red-600 font-medium' : ''}>
+                                {formatDate(task.dueDate)}
+                              </div>
+                            </td>
+                            {currentUser.role === 'client' && (
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {task.assignedTo && task.assignedTo ? task.assignedTo.fullName : 'Unassigned'}
+                              </td>
+                            )}
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => loadTaskDetails(task._id)}
+                                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                                  title="View Details"
+                                >
+                                  <FaEye />
+                                </button>
+                                
+                                {/* Freelancer actions */}
+                                {currentUser.role === 'freelancer' && task.status === 'pending' && (
+                                  <button
+                                    onClick={() => handleStatusUpdate(task._id, 'in_progress')}
+                                    className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                                    title="Start Task"
+                                    disabled={loading}
                                   >
-                                    <FaCheck />
+                                    <FaPlay />
                                   </button>
                                 )}
-                                <button 
-                                  onClick={() => handleEditTask(task)}
-                                  className="p-1 text-blue-500 hover:text-blue-700 dark:hover:text-blue-400"
-                                  title="Edit Task"
-                                >
-                                  <FaEdit />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteTask(task.id)}
-                                  className="p-1 text-red-500 hover:text-red-700 dark:hover:text-red-400"
-                                  title="Delete Task"
-                                >
-                                  <FaTrashAlt />
-                                </button>
+                                
+                                {/* Client actions */}
+                                {/* {currentUser.role === 'client' && task.status === 'completed' && (
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() => handleStatusUpdate(task._id, 'approved')}
+                                      className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                                      title="Approve Task"
+                                      disabled={loading}
+                                    >
+                                      <FaCheck />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const reason = prompt('Please provide a reason for rejection:');
+                                        if (reason) {
+                                          handleStatusUpdate(task._id, 'rejected', reason);
+                                        }
+                                      }}
+                                      className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                                      title="Reject Task"
+                                      disabled={loading}
+                                    >
+                                      <FaTimes />
+                                    </button>
+                                  </div>
+                                )} */}
                               </div>
                             </td>
                           </tr>
@@ -520,167 +1486,149 @@ const TasklistPage = ({ darkMode }) => {
                   </table>
                 </div>
               ) : (
-                <div className="p-8 text-center">
-                  <FaTasks className="mx-auto text-gray-400 text-5xl mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No tasks found</h3>
-                  <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {searchQuery || filters.project || filters.priority || filters.status 
-                      ? 'Try adjusting your filters or search query' 
-                      : 'You have no tasks yet. Add a new task to get started.'}
+                <div className="p-12 text-center">
+                  <div className="text-gray-400 mb-4">
+                    <FaTasks className="mx-auto text-6xl mb-4" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+                  <p className="text-gray-500 mb-4">
+                    {selectedProject 
+                      ? `No tasks found for "${selectedProject.title}"`
+                      : currentUser.role === 'client' 
+                        ? 'Select a project to view its tasks'
+                        : 'No tasks have been assigned to you yet'
+                    }
                   </p>
-                  {(searchQuery || filters.project || filters.priority || filters.status) && (
-                    <button 
-                      onClick={clearFilters}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-                    >
-                      Clear Filters
-                    </button>
-                  )}
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
-      
-      {/* Add/Edit Task Modal */}
-      {showAddTaskModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className={`w-full max-w-md ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} rounded-xl shadow-2xl`}>
-            <div className={`px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <h3 className="text-xl font-bold">{editingTask ? 'Edit Task' : 'Add New Task'}</h3>
-            </div>
-            <div className="p-6 space-y-4">
-              {/* Task Title */}
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="task-title">Task Title</label>
-                <input
-                  type="text"
-                  id="task-title"
-                  name="title"
-                  value={newTask.title}
-                  onChange={handleNewTaskChange}
-                  placeholder="Enter task title"
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
-                />
-              </div>
-              
-              {/* Project */}
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="task-project">Project</label>
-                <input
-                  type="text"
-                  id="task-project"
-                  name="project"
-                  value={newTask.project}
-                  onChange={handleNewTaskChange}
-                  placeholder="Enter project name"
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
-                />
-              </div>
-              
-              {/* Deadline */}
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="task-deadline">Deadline</label>
-                <input
-                  type="text"
-                  id="task-deadline"
-                  name="deadline"
-                  value={newTask.deadline}
-                  onChange={handleNewTaskChange}
-                  placeholder="e.g. May 15, 2025"
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
-                />
-              </div>
-              
-              {/* Priority */}
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="task-priority">Priority</label>
-                <select
-                  id="task-priority"
-                  name="priority"
-                  value={newTask.priority}
-                  onChange={handleNewTaskChange}
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
-                >
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
-              
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="task-status">Status</label>
-                <select
-                  id="task-status"
-                  name="status"
-                  value={newTask.status}
-                  onChange={handleNewTaskChange}
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
-                >
-                  <option value="Not Started">Not Started</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </div>
-              
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="task-description">Description</label>
-                <textarea
-                  id="task-description"
-                  name="description"
-                  value={newTask.description}
-                  onChange={handleNewTaskChange}
-                  rows={3}
-                  placeholder="Enter task description"
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
-                ></textarea>
-              </div>
-            </div>
-            <div className={`px-6 py-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-end space-x-3`}>
-              <button 
-                onClick={() => {
-                  setShowAddTaskModal(false);
-                  setEditingTask(null);
-                  setNewTask({
-                    title: '',
-                    project: '',
-                    deadline: '',
-                    priority: 'Medium',
-                    status: 'Not Started',
-                    description: ''
-                  });
-                }}
-                className={`px-4 py-2 rounded-lg ${
-                  darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+
+      {/* Task Details Modal */}
+      {showTaskDetailsModal && selectedTask && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Task Details</h3>
+              <button
+                onClick={() => setShowTaskDetailsModal(false)}
+                className="text-gray-400 hover:text-gray-600"
               >
-                Cancel
+                <FaTimes size={20} />
               </button>
-              <button 
-                onClick={editingTask ? handleUpdateTask : handleAddTask}
-                disabled={!newTask.title || !newTask.project || !newTask.deadline}
-                className={`px-4 py-2 rounded-lg ${
-                  !newTask.title || !newTask.project || !newTask.deadline
-                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Title</h4>
+                  <p className="text-lg font-semibold text-gray-900">{selectedTask.title}</p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Description</h4>
+                  <p className="text-gray-700">{selectedTask.description || 'No description provided'}</p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Project</h4>
+                  <p className="text-gray-700">{selectedTask.project?.title || 'N/A'}</p>
+                </div>
+                
+                {selectedTask.bid && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Bid Details</h4>
+                    <div className="bg-gray-50 p-3 rounded-md">
+                      <p className="text-gray-700"><span className="font-medium">Amount:</span> ${selectedTask.bid?.amount || 'N/A'}</p>
+                      <p className="text-gray-700"><span className="font-medium">Status:</span> {selectedTask.bid?.status || 'N/A'}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Right Column */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Status</h4>
+                    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusInfo(selectedTask.status).bgColor} ${getStatusInfo(selectedTask.status).color}`}>
+                      {getStatusInfo(selectedTask.status).icon}
+                      {selectedTask.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Priority</h4>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(selectedTask.priority)}`}>
+                      {selectedTask.priority}
+                    </span>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Due Date</h4>
+                  <p className={`text-gray-700 ${isOverdue(selectedTask.dueDate, selectedTask.status) ? 'text-red-600 font-medium' : ''}`}>
+                    {formatDate(selectedTask.dueDate)}
+                    {isOverdue(selectedTask.dueDate, selectedTask.status) && (
+                      <span className="ml-2 text-xs text-red-600">(Overdue)</span>
+                    )}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Created Date</h4>
+                  <p className="text-gray-700">{formatDate(selectedTask.createdAt)}</p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Last Updated</h4>
+                  <p className="text-gray-700">{formatDate(selectedTask.updatedAt)}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Status Update Section for Freelancers */}
+            {currentUser.role === 'freelancer' && selectedTask.status === 'in_progress' && (
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <h4 className="text-sm font-medium text-gray-500 mb-3">Mark Task as Complete</h4>
+                <div className="bg-blue-50 p-4 rounded-md">
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description (Optional)
+                    </label>
+                    <textarea
+                      value={statusUpdateData.description}
+                      onChange={(e) => setStatusUpdateData(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      rows="3"
+                      placeholder="Add any details about the completed work..."
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={() => handleStatusUpdate(
+                      selectedTask._id, 
+                      'completed', 
+                      statusUpdateData.description
+                    )}
+                    disabled={loading}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium disabled:bg-gray-400"
+                  >
+                    {loading ? 'Submitting...' : 'Mark as Complete'}
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowTaskDetailsModal(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md font-medium"
               >
-                {editingTask ? 'Update Task' : 'Add Task'}
+                Close
               </button>
             </div>
           </div>
