@@ -141,6 +141,7 @@ const fetchMyProjects = async (page = 1) => {
       const transformedProjects = data.data.map(project => ({
         id: project._id,
         project_id: project.project_id,
+        project_status: project?.status  || '',
         title: project.title,
         description: project.description,
         status: mapProjectStatus(project.status),
@@ -1153,11 +1154,11 @@ const handleMarkProjectCompleted = async () => {
                   View Messages
                 </Link>
 <button
-  className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex gap-3 items-center"
+className={`px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex gap-3 items-center ${selectedProject.project_status === 'completed' ? 'opacity-50 cursor-not-allowed' : ''}`}
   onClick={handleMarkProjectCompleted}
   disabled={
     selectedProjectTasks.length === 0 ||
-    !selectedProjectTasks.every(task => task.status === 'completed')
+    !selectedProjectTasks.every(task => task.status === 'completed') || selectedProject.project_status === 'completed'
   }
 >
   <FaCheckCircle />
