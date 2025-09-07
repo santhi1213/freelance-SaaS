@@ -321,7 +321,7 @@ const handleOpenProjectDetails = async (projectId) => {
 const handleMarkProjectCompleted = async () => {
   if (!selectedProject) return;
   try {
-    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/complete_project/${selectedProject.id}`, {
+    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/complete_project/${selectedProject.project_id}`, {
       method: 'PUT',
       headers: getHeaders()
     });
