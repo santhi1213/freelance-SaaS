@@ -36,6 +36,8 @@ const UploadedProjects = ({ darkMode }) => {
   });
   const [showProjectDetails, setShowProjectDetails] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  console.log(selectedProject);
+  
   console.log(selectedProject)
   const [myProjects, setMyProjects] = useState([]);
   const [postProject, setPostProject] = useState(false);
@@ -138,6 +140,7 @@ const fetchMyProjects = async (page = 1) => {
       // Transform API response to match the component's expected format
       const transformedProjects = data.data.map(project => ({
         id: project._id,
+        project_id: project.project_id,
         title: project.title,
         description: project.description,
         status: mapProjectStatus(project.status),
@@ -269,6 +272,8 @@ const handleCreateChat = async (bid) => {
     console.error('Error creating conversation:', err);
   }
 };
+console.log(myProjects);
+
 const handleOpenProjectDetails = async (projectId) => {
   // Find the project from the local state
   const project = myProjects.find(p => p.id === projectId);
