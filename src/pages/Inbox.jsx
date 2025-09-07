@@ -1107,23 +1107,7 @@ const id = localStorage.getItem('id')
                             }
                           }}
                         ></textarea>
-                        <div className="absolute right-2 bottom-2 flex space-x-2">
-                          <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          >
-                            <FaPaperclip />
-                          </button>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            onChange={handleFileSelect}
-                            className="hidden"
-                          />
-                          <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                            <FaSmile />
-                          </button>
-                        </div>
+                        
                       </div>
                       <button 
                         onClick={handleSendMessage}

@@ -22,12 +22,14 @@ import {
   FaSpinner,
   FaCheckCircle,
   FaTimesCircle,
-  FaInfoCircle
+  FaInfoCircle,
+  // FaCheck
 } from 'react-icons/fa';
 
 const UploadedProjects = ({ darkMode }) => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProjectTasks, setSelectedProjectTasks] = useState([]);
   const [filters, setFilters] = useState({
     status: '',
     sortBy: 'createdAt'
@@ -233,8 +235,6 @@ const fetchMyProjects = async (page = 1) => {
     }
   };
 
-  // Create chat room
- // Create chat room
 const handleCreateChat = async (bid) => {
   try {
     // Get the freelancer ID from the bid
@@ -267,6 +267,74 @@ const handleCreateChat = async (bid) => {
   } catch (err) {
     alert('Error creating chat: ' + err.message);
     console.error('Error creating conversation:', err);
+  }
+};
+const handleOpenProjectDetails = async (projectId) => {
+  // Find the project from the local state
+  const project = myProjects.find(p => p.id === projectId);
+
+  setSelectedProject(project);
+  setShowProjectDetails(projectId);
+
+  // Fetch project tasks for completion criteria and display
+  try {
+    const response = await fetch(
+      `https://freelance-backend-0tw4.onrender.com/api/projects/${projectId}/tasks`,
+      {
+        method: 'GET',
+        headers: getHeaders()
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      setSelectedProjectTasks(data.data || []); // 'data' array from API response
+    } else {
+      setSelectedProjectTasks([]);
+    }
+  } catch (err) {
+    setSelectedProjectTasks([]);
+  }
+
+  // Transform bids as per the previous logic
+  if (project && project._rawBids) {
+    const transformedBids = project._rawBids.map(bid => ({
+      _id: bid.id || bid._id,
+      amount: bid.amount,
+      deliveryTime: bid.deliveryTime,
+      proposal: bid.coverLetter,
+      status: mapBidStatus(bid.status),
+      createdAt: bid.createdAt,
+      freelancer: {
+        _id: bid.freelancer?.id,
+        name: bid.freelancer?.fullName,
+        profile: bid.freelancer?.profilePhoto || '/default-avatar.png',
+        rating: bid.freelancer?.rating?.average || 0
+      }
+    }));
+    setProjectBids(transformedBids);
+  } else {
+    setProjectBids([]);
+  }
+};
+
+const handleMarkProjectCompleted = async () => {
+  if (!selectedProject) return;
+  try {
+    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/complete_project/${selectedProject.id}`, {
+      method: 'PUT',
+      headers: getHeaders()
+    });
+    const result = await response.json();
+    if (response.ok) {
+      alert('Project marked as completed!');
+      fetchMyProjects(); // Refresh project list
+      closeProjectDetails();
+    } else {
+      alert(result.message || 'Failed to mark project completed');
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
   }
 };
 
@@ -344,34 +412,34 @@ const handleCreateChat = async (bid) => {
     }
   };
   // When opening the project details modal
-const handleOpenProjectDetails = (projectId) => {
-  const project = myProjects.find(p => p.id === projectId);
-  setSelectedProject(project);
-  setShowProjectDetails(projectId);
+// const handleOpenProjectDetails = (projectId) => {
+//   const project = myProjects.find(p => p.id === projectId);
+//   setSelectedProject(project);
+//   setShowProjectDetails(projectId);
   
-  // Set the bids for this project
-  if (project && project._rawBids) {
-    // Transform the API bid format to match component expectations
-    const transformedBids = project._rawBids.map(bid => ({
-      _id: bid.id || bid._id,
-      amount: bid.amount,
-      deliveryTime: bid.deliveryTime,
-      proposal: bid.coverLetter,
-      status: mapBidStatus(bid.status),
-      createdAt: bid.createdAt,
-      freelancer: {
-        _id: bid.freelancer?.id,
-        name: bid.freelancer?.fullName,
-        profile: bid.freelancer?.profilePhoto || '/default-avatar.png',
-        rating: bid.freelancer?.rating?.average || 0
-      }
-    }));
+//   // Set the bids for this project
+//   if (project && project._rawBids) {
+//     // Transform the API bid format to match component expectations
+//     const transformedBids = project._rawBids.map(bid => ({
+//       _id: bid.id || bid._id,
+//       amount: bid.amount,
+//       deliveryTime: bid.deliveryTime,
+//       proposal: bid.coverLetter,
+//       status: mapBidStatus(bid.status),
+//       createdAt: bid.createdAt,
+//       freelancer: {
+//         _id: bid.freelancer?.id,
+//         name: bid.freelancer?.fullName,
+//         profile: bid.freelancer?.profilePhoto || '/default-avatar.png',
+//         rating: bid.freelancer?.rating?.average || 0
+//       }
+//     }));
     
-    setProjectBids(transformedBids);
-  } else {
-    setProjectBids([]);
-  }
-};
+//     setProjectBids(transformedBids);
+//   } else {
+//     setProjectBids([]);
+//   }
+// };
 
   const closePostProject = () => {
     setPostProject(false);
@@ -1079,6 +1147,18 @@ const handleOpenProjectDetails = (projectId) => {
                   <FaComment className="mr-2" />
                   View Messages
                 </Link>
+<button
+  className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex gap-3 items-center"
+  onClick={handleMarkProjectCompleted}
+  disabled={
+    selectedProjectTasks.length === 0 ||
+    !selectedProjectTasks.every(task => task.status === 'completed')
+  }
+>
+  <FaCheckCircle />
+  Mark as Completed
+</button>
+
                 <button
                   onClick={closeProjectDetails}
                   className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg"
