@@ -621,17 +621,6 @@ const fetchMyProjects = async (page = 1) => {
                                   {bid.proposedDuration}
                                 </div>
                               </td>
-                              {/* <td className="py-4 px-4">
-                                <button 
-                                  className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 text-sm font-medium"
-                                  onClick={() => {
-                                    // You can implement a bid details modal here
-                                    alert(`Cover Letter: ${bid.coverLetter}`);
-                                  }}
-                                >
-                                  View Details
-                                </button>
-                              </td> */}
                             </tr>
                           ))}
                         </tbody>

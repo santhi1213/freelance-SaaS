@@ -39,7 +39,7 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
     <nav className={`shadow-md px-6 py-4 flex justify-between items-center sticky top-0 z-50 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'}`}>
       {/* Logo Section */}
       <Link to="/" className="flex items-center space-x-2 text-blue-600 text-2xl font-bold">
-        <SiFramework7 className="text-3xl" />
+        <img src="/working.png" alt="logo" className='w-12 h-12' />
         <span className="hidden sm:inline">Freelancer</span>
       </Link>
 
@@ -111,16 +111,6 @@ const Navbar = ({ darkMode, toggleDarkMode, onPostProjectClick, logged }) => {
 
       {/* Icons & Button */}
       <div className="flex items-center space-x-4">
-        <button className="relative hover:text-blue-500">
-          <FaBell className="text-xl" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
-        </button>
-
-        <button className="relative hover:text-green-500">
-          <FaComments className="text-xl" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full" />
-        </button>
-
         <button onClick={toggleDarkMode} className="text-xl hover:text-yellow-500">
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>

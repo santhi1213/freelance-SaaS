@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AddTaskModal from '../components/AddTaskModal';
 import PostProjectModal from '../Modals/PostProject';
-import { 
-  FaPlus, 
-  FaFilter, 
-  FaSearch, 
-  FaChevronDown, 
-  FaChevronUp, 
+import {
+  FaPlus,
+  FaFilter,
+  FaSearch,
+  FaChevronDown,
+  FaChevronUp,
   FaEllipsisV,
   FaRegCalendarAlt,
   FaRegClock,
@@ -22,13 +22,13 @@ import {
   FaSpinner,
   FaCheckCircle,
   FaTimesCircle,
-  FaInfoCircle,
-  // FaCheck
+  FaInfoCircle
 } from 'react-icons/fa';
 
 const UploadedProjects = ({ darkMode }) => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [notification, setNotification] = useState(null);
   const [selectedProjectTasks, setSelectedProjectTasks] = useState([]);
   const [filters, setFilters] = useState({
     status: '',
@@ -37,7 +37,7 @@ const UploadedProjects = ({ darkMode }) => {
   const [showProjectDetails, setShowProjectDetails] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   console.log(selectedProject);
-  
+
   console.log(selectedProject)
   const [myProjects, setMyProjects] = useState([]);
   const [postProject, setPostProject] = useState(false);
@@ -48,7 +48,7 @@ const UploadedProjects = ({ darkMode }) => {
     totalPages: 1,
     totalProjects: 0
   });
-  
+
   // New states for bid management in modal
   const [projectBids, setProjectBids] = useState([]);
   const [bidsLoading, setBidsLoading] = useState(false);
@@ -57,38 +57,38 @@ const UploadedProjects = ({ darkMode }) => {
   const [acceptMessage, setAcceptMessage] = useState('');
   const [rejectMessage, setRejectMessage] = useState('');
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-const [selectedProjectForTask, setSelectedProjectForTask] = useState(null);
+  const [selectedProjectForTask, setSelectedProjectForTask] = useState(null);
   const userId = localStorage.getItem('id');
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
-  
+
   // API call headers
   const getHeaders = () => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   });
-// Add this function to handle opening the task modal
-const handleAddTask = (project) => {
-  setSelectedProjectForTask(project);
-  setShowAddTaskModal(true);
-};
+  // Add this function to handle opening the task modal
+  const handleAddTask = (project) => {
+    setSelectedProjectForTask(project);
+    setShowAddTaskModal(true);
+  };
 
-// Add this function to handle task creation success
-const handleTaskCreated = (newTask) => {
-  // You can add any additional logic here like showing a success message
-  console.log('New task created:', newTask);
-  // Optionally refresh the projects list to show updated task counts
-  fetchMyProjects();
-};
+  // Add this function to handle task creation success
+  const handleTaskCreated = (newTask) => {
+    // You can add any additional logic here like showing a success message
+    console.log('New task created:', newTask);
+    // Optionally refresh the projects list to show updated task counts
+    fetchMyProjects();
+  };
 
-// Add this function to close the task modal
-const closeAddTaskModal = () => {
-  setShowAddTaskModal(false);
-  setSelectedProjectForTask(null);
-};
-const hasAcceptedBid = () => {
-  return projectBids.some(bid => bid.status === 'accepted');
-};
+  // Add this function to close the task modal
+  const closeAddTaskModal = () => {
+    setShowAddTaskModal(false);
+    setSelectedProjectForTask(null);
+  };
+  const hasAcceptedBid = () => {
+    return projectBids.some(bid => bid.status === 'accepted');
+  };
   // Helper function to map API project status to display status
   const mapProjectStatus = (apiStatus) => {
     switch (apiStatus?.toLowerCase()) {
@@ -107,96 +107,96 @@ const hasAcceptedBid = () => {
     }
   };
 
-const mapBidStatus = (apiStatus) => {
-  switch (apiStatus?.toLowerCase()) {
-    case 'pending':
-      return 'pending';
-    case 'accepted':
-      return 'accepted';
-    case 'rejected':
-      return 'rejected';
-    default:
-      return 'pending';
-  }
-};
-  
-const fetchMyProjects = async (page = 1) => {
-  setLoading(true);
-  setError(null);
-  try {
-    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
-      method: 'GET',
-      headers: getHeaders()
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch projects');
+  const mapBidStatus = (apiStatus) => {
+    switch (apiStatus?.toLowerCase()) {
+      case 'pending':
+        return 'pending';
+      case 'accepted':
+        return 'accepted';
+      case 'rejected':
+        return 'rejected';
+      default:
+        return 'pending';
     }
+  };
 
-    const data = await response.json();
-    console.log('API Response:', data);
-    
-    if (data.success) {
-      // Transform API response to match the component's expected format
-      const transformedProjects = data.data.map(project => ({
-        id: project._id,
-        project_id: project.project_id,
-        project_status: project?.status  || '',
-        title: project.title,
-        description: project.description,
-        status: mapProjectStatus(project.status),
-        budget: `${project.budget_from || 0} - ${project.budget_to || 0}`,
-        deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric'
-        }) : 'No deadline set',
-        startDate: new Date(project.createdAt).toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric'
-        }),
-        progress: Math.floor(Math.random() * 100),
-        duration: project.project_duration || 'Not specified',
-        category: project.project_type || 'General',
-        skills: project.req_skills || [],
-        client: {
-          name: project.clientName || 'Client',
-          profile: '/default-avatar.png',
-          rating: 4.5
-        },
-        bids: project.bids,
-        bidStatistics: project.bidStatistics || {
-          total: 0,
-          pending: 0,
-          accepted: 0,
-          rejected: 0
-        },
-        createdAt: project.createdAt,
-        canStartChat: project.canStartChat || false,
-        // Store the raw bids data for later use
-        _rawBids: project.bids || []
-      }));
+  const fetchMyProjects = async (page = 1) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
+        method: 'GET',
+        headers: getHeaders()
+      });
 
-      setMyProjects(transformedProjects);
-      setPagination(data.pagination);
+      if (!response.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      if (data.success) {
+        // Transform API response to match the component's expected format
+        const transformedProjects = data.data.map(project => ({
+          id: project._id,
+          project_id: project.project_id,
+          project_status: project?.status || '',
+          title: project.title,
+          description: project.description,
+          status: mapProjectStatus(project.status),
+          budget: `${project.budget_from || 0} - ${project.budget_to || 0}`,
+          deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          }) : 'No deadline set',
+          startDate: new Date(project.createdAt).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          progress: Math.floor(Math.random() * 100),
+          duration: project.project_duration || 'Not specified',
+          category: project.project_type || 'General',
+          skills: project.req_skills || [],
+          client: {
+            name: project.clientName || 'Client',
+            profile: '/default-avatar.png',
+            rating: 4.5
+          },
+          bids: project.bids,
+          bidStatistics: project.bidStatistics || {
+            total: 0,
+            pending: 0,
+            accepted: 0,
+            rejected: 0
+          },
+          createdAt: project.createdAt,
+          canStartChat: project.canStartChat || false,
+          // Store the raw bids data for later use
+          _rawBids: project.bids || []
+        }));
+
+        setMyProjects(transformedProjects);
+        setPagination(data.pagination);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching projects:', err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(err.message);
-    console.error('Error fetching projects:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Handle bid status update (accept/reject)
   const handleBidStatusUpdate = async (bidId, status, message = '') => {
     setProcessingBid(bidId);
     try {
       console.log('Updating bid status:', { bidId, status, message });
-      
+
       const defaultMessage = message || (status === 'accepted' ? 'Your bid has been accepted!' : 'Thank you for your proposal.');
-      
+
       const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/bids/${bidId}/status`, {
         method: 'PUT',
         headers: getHeaders(),
@@ -212,10 +212,10 @@ const fetchMyProjects = async (page = 1) => {
       }
 
       const result = await response.json();
-      
+
       // Update local state
-      setProjectBids(prev => prev.map(bid => 
-        bid._id === bidId 
+      setProjectBids(prev => prev.map(bid =>
+        bid._id === bidId
           ? { ...bid, status: mapBidStatus(status) }
           : bid.status === 'pending' && status === 'accepted'
             ? { ...bid, status: mapBidStatus('rejected') }
@@ -226,123 +226,143 @@ const fetchMyProjects = async (page = 1) => {
       setAcceptMessage('');
       setRejectMessage('');
       setShowMessageInput(null);
+      setNotification({
+        type: 'success',
+        message: `Bid ${status} successfully!`
+      });
 
-      alert(`Bid ${status} successfully!`);
-      
       // Refresh projects to get updated bid statistics
       await fetchMyProjects();
     } catch (err) {
       console.error('Error updating bid status:', err);
-      alert(`Error: ${err.message}`);
+      setNotification({
+        type: 'error',
+        message: `Error: ${err.message}`
+      });
     } finally {
       setProcessingBid(null);
     }
   };
 
-const handleCreateChat = async (bid) => {
-  try {
-    // Get the freelancer ID from the bid
-    const freelancerId = bid.freelancer?._id || bid.freelancer?.id;
-    
-    if (!freelancerId) {
-      throw new Error('Freelancer information not available');
-    }
+  const handleCreateChat = async (bid) => {
+    try {
+      // Get the freelancer ID from the bid
+      const freelancerId = bid.freelancer?._id || bid.freelancer?.id;
 
-    const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/conversations/create', {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        participantId: freelancerId,
-        projectId: selectedProject.id,
-        initialMessage: 'Hello! I would like to discuss the project details.'
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create conversation');
-    }
-
-    const data = await response.json();
-    if (data.success) {
-      alert('Conversation started successfully!');
-      // Redirect to chat or inbox
-      window.location.href = `/inbox`;
-    }
-  } catch (err) {
-    alert('Error creating chat: ' + err.message);
-    console.error('Error creating conversation:', err);
-  }
-};
-console.log(myProjects);
-
-const handleOpenProjectDetails = async (projectId) => {
-  // Find the project from the local state
-  const project = myProjects.find(p => p.id === projectId);
-
-  setSelectedProject(project);
-  setShowProjectDetails(projectId);
-
-  // Fetch project tasks for completion criteria and display
-  try {
-    const response = await fetch(
-      `https://freelance-backend-0tw4.onrender.com/api/projects/${projectId}/tasks`,
-      {
-        method: 'GET',
-        headers: getHeaders()
+      if (!freelancerId) {
+        throw new Error('Freelancer information not available');
       }
-    );
 
-    if (response.ok) {
+      const response = await fetch('https://freelance-backend-0tw4.onrender.com/api/conversations/create', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          participantId: freelancerId,
+          projectId: selectedProject.id,
+          initialMessage: 'Hello! I would like to discuss the project details.'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create conversation');
+      }
+
       const data = await response.json();
-      setSelectedProjectTasks(data.data || []); // 'data' array from API response
-    } else {
+      if (data.success) {
+        setNotification({
+          type: 'success',
+          message: 'Conversation started successfully!'
+        });
+        // Redirect to chat or inbox
+        window.location.href = `/inbox`;
+      }
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        message: 'Error creating chat: ' + err.message
+      });
+      console.error('Error creating conversation:', err);
+    }
+  };
+  console.log(myProjects);
+
+  const handleOpenProjectDetails = async (projectId) => {
+    // Find the project from the local state
+    const project = myProjects.find(p => p.id === projectId);
+
+    setSelectedProject(project);
+    setShowProjectDetails(projectId);
+
+    // Fetch project tasks for completion criteria and display
+    try {
+      const response = await fetch(
+        `https://freelance-backend-0tw4.onrender.com/api/projects/${projectId}/tasks`,
+        {
+          method: 'GET',
+          headers: getHeaders()
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedProjectTasks(data.data || []); // 'data' array from API response
+      } else {
+        setSelectedProjectTasks([]);
+      }
+    } catch (err) {
       setSelectedProjectTasks([]);
     }
-  } catch (err) {
-    setSelectedProjectTasks([]);
-  }
 
-  // Transform bids as per the previous logic
-  if (project && project._rawBids) {
-    const transformedBids = project._rawBids.map(bid => ({
-      _id: bid.id || bid._id,
-      amount: bid.amount,
-      deliveryTime: bid.deliveryTime,
-      proposal: bid.coverLetter,
-      status: mapBidStatus(bid.status),
-      createdAt: bid.createdAt,
-      freelancer: {
-        _id: bid.freelancer?.id,
-        name: bid.freelancer?.fullName,
-        profile: bid.freelancer?.profilePhoto || '/default-avatar.png',
-        rating: bid.freelancer?.rating?.average || 0
-      }
-    }));
-    setProjectBids(transformedBids);
-  } else {
-    setProjectBids([]);
-  }
-};
-
-const handleMarkProjectCompleted = async () => {
-  if (!selectedProject) return;
-  try {
-    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/complete_project/${selectedProject.project_id}`, {
-      method: 'PUT',
-      headers: getHeaders()
-    });
-    const result = await response.json();
-    if (response.ok) {
-      alert('Project marked as completed!');
-      fetchMyProjects(); // Refresh project list
-      closeProjectDetails();
+    // Transform bids as per the previous logic
+    if (project && project._rawBids) {
+      const transformedBids = project._rawBids.map(bid => ({
+        _id: bid.id || bid._id,
+        amount: bid.amount,
+        deliveryTime: bid.deliveryTime,
+        proposal: bid.coverLetter,
+        status: mapBidStatus(bid.status),
+        createdAt: bid.createdAt,
+        freelancer: {
+          _id: bid.freelancer?.id,
+          name: bid.freelancer?.fullName,
+          profile: bid.freelancer?.profilePhoto || '/default-avatar.png',
+          rating: bid.freelancer?.rating?.average || 0
+        }
+      }));
+      setProjectBids(transformedBids);
     } else {
-      alert(result.message || 'Failed to mark project completed');
+      setProjectBids([]);
     }
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
-};
+  };
+
+  const handleMarkProjectCompleted = async () => {
+    if (!selectedProject) return;
+    try {
+      const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/complete_project/${selectedProject.project_id}`, {
+        method: 'PUT',
+        headers: getHeaders()
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setNotification({
+          type: 'success',
+          message: 'Project marked as completed!'
+        });
+        fetchMyProjects(); // Refresh project list
+        closeProjectDetails();
+      } else {
+        setNotification({
+          type: 'error',
+          message: result.message || 'Failed to mark project completed'
+        });
+      }
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        message: 'Error: ' + err.message
+      });
+    }
+  };
 
   // Fetch data when component mounts
   useEffect(() => {
@@ -375,10 +395,10 @@ const handleMarkProjectCompleted = async () => {
   // Filter and sort projects locally
   const filteredProjects = myProjects
     .filter(item => {
-      const matchesSearch = !searchQuery || 
+      const matchesSearch = !searchQuery ||
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       return matchesSearch;
     })
     .sort((a, b) => {
@@ -417,35 +437,6 @@ const handleMarkProjectCompleted = async () => {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
-  // When opening the project details modal
-// const handleOpenProjectDetails = (projectId) => {
-//   const project = myProjects.find(p => p.id === projectId);
-//   setSelectedProject(project);
-//   setShowProjectDetails(projectId);
-  
-//   // Set the bids for this project
-//   if (project && project._rawBids) {
-//     // Transform the API bid format to match component expectations
-//     const transformedBids = project._rawBids.map(bid => ({
-//       _id: bid.id || bid._id,
-//       amount: bid.amount,
-//       deliveryTime: bid.deliveryTime,
-//       proposal: bid.coverLetter,
-//       status: mapBidStatus(bid.status),
-//       createdAt: bid.createdAt,
-//       freelancer: {
-//         _id: bid.freelancer?.id,
-//         name: bid.freelancer?.fullName,
-//         profile: bid.freelancer?.profilePhoto || '/default-avatar.png',
-//         rating: bid.freelancer?.rating?.average || 0
-//       }
-//     }));
-    
-//     setProjectBids(transformedBids);
-//   } else {
-//     setProjectBids([]);
-//   }
-// };
 
   const closePostProject = () => {
     setPostProject(false);
@@ -459,7 +450,15 @@ const handleMarkProjectCompleted = async () => {
     setAcceptMessage('');
     setRejectMessage('');
   };
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000); // Auto dismiss after 5 seconds
 
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
   return (
     <div className="min-h-screen pb-16">
       {/* Page Header */}
@@ -473,7 +472,7 @@ const handleMarkProjectCompleted = async () => {
               </p>
             </div>
             {role === 'client' && (
-              <button 
+              <button
                 onClick={() => setPostProject(true)}
                 className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
@@ -484,13 +483,13 @@ const handleMarkProjectCompleted = async () => {
           </div>
         </div>
       </div>
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filter Sidebar */}
           <div className="lg:w-1/4">
             <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} shadow-lg rounded-xl overflow-hidden sticky top-24`}>
-              <div 
+              <div
                 className="py-4 px-6 flex justify-between items-center cursor-pointer border-b border-gray-200 dark:border-gray-700"
                 onClick={toggleFilterExpansion}
               >
@@ -502,7 +501,7 @@ const handleMarkProjectCompleted = async () => {
                   {isFilterExpanded ? <FaChevronUp /> : <FaChevronDown />}
                 </div>
               </div>
-              
+
               {isFilterExpanded && (
                 <div className="p-6 space-y-6">
                   {/* Search */}
@@ -517,14 +516,13 @@ const handleMarkProjectCompleted = async () => {
                         placeholder="Search projects..."
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                          darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                        }`}
+                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                          }`}
                       />
                       <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
                   </div>
-                  
+
                   {/* Status Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" htmlFor="status">
@@ -543,7 +541,7 @@ const handleMarkProjectCompleted = async () => {
                       <option value="on-hold">On Hold</option>
                     </select>
                   </div>
-                  
+
                   {/* Sort By */}
                   <div>
                     <label className="block text-sm font-medium mb-2" htmlFor="sortBy">
@@ -562,9 +560,9 @@ const handleMarkProjectCompleted = async () => {
                       <option value="progress">Progress (Highest)</option>
                     </select>
                   </div>
-                  
+
                   {/* Clear Filters Button */}
-                  <button 
+                  <button
                     onClick={clearFilters}
                     className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
                   >
@@ -572,7 +570,7 @@ const handleMarkProjectCompleted = async () => {
                   </button>
 
                   {/* Refresh Button */}
-                  <button 
+                  <button
                     onClick={() => fetchMyProjects()}
                     disabled={loading}
                     className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium"
@@ -583,11 +581,11 @@ const handleMarkProjectCompleted = async () => {
               )}
             </div>
           </div>
-          
+
           {postProject && (
-            <PostProjectModal onClose={closePostProject}/>
+            <PostProjectModal onClose={closePostProject} />
           )}
-          
+
           {/* Projects Grid */}
           <div className="lg:w-3/4">
             {/* Loading State */}
@@ -606,7 +604,7 @@ const handleMarkProjectCompleted = async () => {
                 <div className="text-red-500 text-5xl mb-4">⚠️</div>
                 <h3 className="text-xl font-semibold mb-2 text-red-600">Error</h3>
                 <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{error}</p>
-                <button 
+                <button
                   onClick={() => fetchMyProjects()}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                 >
@@ -621,27 +619,27 @@ const handleMarkProjectCompleted = async () => {
                 {filteredProjects.length > 0 ? (
                   <div className="grid gap-6 md:grid-cols-2">
                     {filteredProjects.map(project => (
-                      <div 
-                        key={project.id} 
+                      <div
+                        key={project.id}
                         className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg overflow-hidden`}
                       >
                         <div className="p-6">
                           <div className="flex justify-between items-start">
                             <h3 className="text-lg font-bold">{project.title}</h3>
                             <div className="relative">
-                              <button 
-                                onClick={() => {}}
+                              <button
+                                onClick={() => { }}
                                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                               >
                                 <FaEllipsisV />
                               </button>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center mt-2">
-                            <img 
-                              src={project.client.profile} 
-                              alt={project.client.name} 
+                            <img
+                              src={project.client.profile}
+                              alt={project.client.name}
                               className="w-8 h-8 rounded-full mr-2"
                               onError={(e) => {
                                 e.target.onerror = null;
@@ -658,17 +656,17 @@ const handleMarkProjectCompleted = async () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <span className={`text-xs px-3 py-1 rounded-full ${getStatusColor(project.status)}`}>
                               {project.status}
                             </span>
                           </div>
-                          
+
                           <p className={`mt-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} line-clamp-2`}>
                             {project.description}
                           </p>
-                          
+
                           <div className="mt-4 space-y-2">
                             <div className="flex items-center justify-between text-sm">
                               <div className="flex items-center">
@@ -692,51 +690,51 @@ const handleMarkProjectCompleted = async () => {
                               <span className="font-medium">{project.bidStatistics.total}</span>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span>Progress</span>
                               <span>{project.progress}%</span>
                             </div>
                             <div className="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-blue-600 rounded-full" 
+                              <div
+                                className="h-full bg-blue-600 rounded-full"
                                 style={{ width: `${project.progress}%` }}
                               ></div>
                             </div>
                           </div>
-                          
+
                           <div className="mt-6 flex gap-2">
-  <button 
-    onClick={() => {
-      handleOpenProjectDetails(project.id);
-    }}
-    className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
-  >
-    View Details
-  </button>
-  {role === 'client' && (
-    <button
-      onClick={() => handleAddTask(project)}
-      className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center justify-center"
-      title="Add Task"
-    >
-      <FaPlus />
-    </button>
-  )}
-  <Link 
-    to="/tasklist"
-    className="px-3 py-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm flex items-center justify-center"
-  >
-    <FaTasks />
-  </Link>
-  <Link 
-    to="/inbox"
-    className="px-3 py-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm flex items-center justify-center"
-  >
-    <FaComment />
-  </Link>
-</div>
+                            <button
+                              onClick={() => {
+                                handleOpenProjectDetails(project.id);
+                              }}
+                              className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+                            >
+                              View Details
+                            </button>
+                            {role === 'client' && (
+                              <button
+                                onClick={() => handleAddTask(project)}
+                                className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center justify-center"
+                                title="Add Task"
+                              >
+                                <FaPlus />
+                              </button>
+                            )}
+                            <Link
+                              to="/tasklist"
+                              className="px-3 py-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm flex items-center justify-center"
+                            >
+                              <FaTasks />
+                            </Link>
+                            <Link
+                              to="/inbox"
+                              className="px-3 py-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm flex items-center justify-center"
+                            >
+                              <FaComment />
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -747,11 +745,11 @@ const handleMarkProjectCompleted = async () => {
                     <h3 className="text-xl font-semibold mb-2">No projects found</h3>
                     <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {searchQuery || filters.status
-                        ? 'Try adjusting your filters or search query' 
+                        ? 'Try adjusting your filters or search query'
                         : 'You have no active projects yet.'}
                     </p>
                     {(searchQuery || filters.status) && (
-                      <button 
+                      <button
                         onClick={clearFilters}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                       >
@@ -774,21 +772,20 @@ const handleMarkProjectCompleted = async () => {
                   >
                     Previous
                   </button>
-                  
+
                   {[...Array(pagination.totalPages)].map((_, index) => (
                     <button
                       key={index + 1}
                       onClick={() => fetchMyProjects(index + 1)}
-                      className={`px-3 py-2 rounded-lg ${
-                        pagination.currentPage === index + 1
-                          ? 'bg-blue-600 text-white'
-                          : 'border border-gray-300 dark:border-gray-600'
-                      }`}
+                      className={`px-3 py-2 rounded-lg ${pagination.currentPage === index + 1
+                        ? 'bg-blue-600 text-white'
+                        : 'border border-gray-300 dark:border-gray-600'
+                        }`}
                     >
                       {index + 1}
                     </button>
                   ))}
-                  
+
                   <button
                     onClick={() => fetchMyProjects(pagination.currentPage + 1)}
                     disabled={pagination.currentPage === pagination.totalPages}
@@ -913,8 +910,8 @@ const handleMarkProjectCompleted = async () => {
                   <span>{selectedProject.progress}%</span>
                 </div>
                 <div className="w-full h-3 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-blue-600 rounded-full transition-all duration-300" 
+                  <div
+                    className="h-full bg-blue-600 rounded-full transition-all duration-300"
                     style={{ width: `${selectedProject.progress}%` }}
                   ></div>
                 </div>
@@ -927,7 +924,7 @@ const handleMarkProjectCompleted = async () => {
                     <FaEye className="mr-2" />
                     Project Bids ({projectBids.length})
                   </h3>
-                  
+
                   {bidsLoading ? (
                     <div className="text-center py-8">
                       <FaSpinner className="animate-spin text-2xl mx-auto mb-2" />
@@ -937,14 +934,13 @@ const handleMarkProjectCompleted = async () => {
                     <div className="space-y-4 max-h-96 overflow-y-auto">
                       {projectBids.map((bid) => (
                         <div
-  key={bid._id}
-  className={`
-    ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} 
-    p-4 rounded-lg border 
-    ${bid.status !== 'accepted' ? 'bg-gray-100 opacity-50 cursor-not-allowed' : ''}
-  `}
->
-
+                          key={bid._id}
+                          className={`
+                            ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} 
+                            p-4 rounded-lg border 
+                            ${hasAcceptedBid() && bid.status !== 'accepted' ? 'bg-gray-50 dark:bg-gray-100 opacity-50 cursor-not-allowed' : ''}
+                          `}
+                        >
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex items-center">
                               <img
@@ -979,11 +975,14 @@ const handleMarkProjectCompleted = async () => {
                               </span>
                             </div>
                           </div>
-                          
+
                           <div className="mb-3">
-                            <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              <strong>Proposal:</strong> {bid.proposal}
+                            <p
+                              className={`text-sm text-black ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                            >
+                              <strong className={``}>Proposal:</strong> {bid.proposal}
                             </p>
+
                             <div className="flex items-center mt-2 text-xs text-gray-500">
                               <FaRegClock className="mr-1" />
                               <span>Delivery: {bid.deliveryTime} days</span>
@@ -991,51 +990,63 @@ const handleMarkProjectCompleted = async () => {
                               <span>Submitted: {new Date(bid.createdAt).toLocaleDateString()}</span>
                             </div>
                           </div>
-                          
                           {/* Bid Actions */}
                           {bid.status === 'pending' && !hasAcceptedBid() && (
-  <div className="flex gap-2 mt-3">
-    <button
-      onClick={() => setShowMessageInput(`accept-${bid._id}`)}
-      disabled={processingBid === bid._id}
-      className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg text-sm flex items-center justify-center"
-    >
-      {processingBid === bid._id ? (
-        <FaSpinner className="animate-spin mr-1" />
-      ) : (
-        <FaCheckCircle className="mr-1" />
-      )}
-      Accept
-    </button>
-    <button
-      onClick={() => setShowMessageInput(`reject-${bid._id}`)}
-      disabled={processingBid === bid._id}
-      className="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg text-sm flex items-center justify-center"
-    >
-      {processingBid === bid._id ? (
-        <FaSpinner className="animate-spin mr-1" />
-      ) : (
-        <FaTimesCircle className="mr-1" />
-      )}
-      Reject
-    </button>
-    <button
-      onClick={() => handleCreateChat(bid)}
-      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center justify-center"
-    >
-      <FaComment className="mr-1" />
-      Chat
-    </button>
-  </div>
-)}
-{bid.status === 'pending' && hasAcceptedBid() && (
-  <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-      <FaInfoCircle className="mr-2" />
-      Another bid has been accepted for this project
-    </p>
-  </div>
-)}  
+                            <div className="flex gap-2 mt-3">
+                              <button
+                                onClick={() => setShowMessageInput(`accept-${bid._id}`)}
+                                disabled={processingBid === bid._id}
+                                className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg text-sm flex items-center justify-center"
+                              >
+                                {/* button content remains the same */}
+                                {processingBid === bid._id ? (
+                                  <FaSpinner className="animate-spin mr-1" />
+                                ) : (
+                                  <FaCheckCircle className="mr-1" />
+                                )}
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => setShowMessageInput(`reject-${bid._id}`)}
+                                disabled={processingBid === bid._id}
+                                className="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg text-sm flex items-center justify-center"
+                              >
+                                {/* button content remains the same */}
+                                {processingBid === bid._id ? (
+                                  <FaSpinner className="animate-spin mr-1" />
+                                ) : (
+                                  <FaTimesCircle className="mr-1" />
+                                )}
+                                Reject
+                              </button>
+                              <button
+                                onClick={() => handleCreateChat(bid)}
+                                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center justify-center"
+                              >
+                                {/* button content remains the same */}
+                                <FaComment className="mr-1" />
+                                Chat
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Add this new condition for pending bids when another is accepted */}
+                          {bid.status === 'pending' && hasAcceptedBid() && (
+                            <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                                <FaInfoCircle className="mr-2" />
+                                Another bid has been accepted for this project
+                              </p>
+                            </div>
+                          )}
+                          {bid.status === 'pending' && hasAcceptedBid() && (
+                            <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                                <FaInfoCircle className="mr-2" />
+                                Another bid has been accepted for this project
+                              </p>
+                            </div>
+                          )}
 
                           {/* Message Input for Accept */}
                           {showMessageInput === `accept-${bid._id}` && (
@@ -1048,9 +1059,8 @@ const handleMarkProjectCompleted = async () => {
                                 value={acceptMessage}
                                 onChange={(e) => setAcceptMessage(e.target.value)}
                                 placeholder="Congratulations! Your bid has been accepted. Looking forward to working with you..."
-                                className={`w-full p-2 border rounded-lg text-sm ${
-                                  darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                                }`}
+                                className={`w-full p-2 border rounded-lg text-sm ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
+                                  }`}
                                 rows="3"
                               />
                               <div className="flex gap-2 mt-2">
@@ -1085,9 +1095,8 @@ const handleMarkProjectCompleted = async () => {
                                 value={rejectMessage}
                                 onChange={(e) => setRejectMessage(e.target.value)}
                                 placeholder="Thank you for your proposal. Unfortunately, we have decided to go with another candidate..."
-                                className={`w-full p-2 border rounded-lg text-sm ${
-                                  darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                                }`}
+                                className={`w-full p-2 border rounded-lg text-sm ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
+                                  }`}
                                 rows="3"
                               />
                               <div className="flex gap-2 mt-2">
@@ -1153,17 +1162,17 @@ const handleMarkProjectCompleted = async () => {
                   <FaComment className="mr-2" />
                   View Messages
                 </Link>
-<button
-className={`px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex gap-3 items-center ${selectedProject.project_status === 'completed' ? 'opacity-50 cursor-not-allowed' : ''}`}
-  onClick={handleMarkProjectCompleted}
-  disabled={
-    selectedProjectTasks.length === 0 ||
-    !selectedProjectTasks.every(task => task.status === 'completed') || selectedProject.project_status === 'completed'
-  }
->
-  <FaCheckCircle />
-  Mark as Completed
-</button>
+                <button
+                  className={`px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex gap-3 items-center ${selectedProject.project_status === 'completed' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={handleMarkProjectCompleted}
+                  disabled={
+                    selectedProjectTasks.length === 0 ||
+                    !selectedProjectTasks.every(task => task.status === 'completed') || selectedProject.project_status === 'completed'
+                  }
+                >
+                  <FaCheckCircle />
+                  Mark as Completed
+                </button>
 
                 <button
                   onClick={closeProjectDetails}
@@ -1176,15 +1185,39 @@ className={`px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex
           </div>
         </div>
       )}
+      {/* Notification Toast */}
+      {notification && (
+        <div className="fixed top-4 right-4 z-50">
+          <div
+            className={`px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 ${notification.type === 'success'
+              ? 'bg-green-500 text-white'
+              : notification.type === 'error'
+                ? 'bg-red-500 text-white'
+                : 'bg-blue-500 text-white'
+              }`}
+          >
+            {notification.type === 'success' && <FaCheckCircle />}
+            {notification.type === 'error' && <FaTimesCircle />}
+            {notification.type === 'info' && <FaInfoCircle />}
+            <span>{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-2 text-white hover:text-gray-200"
+            >
+              <FaTimes />
+            </button>
+          </div>
+        </div>
+      )}
       {showAddTaskModal && selectedProjectForTask && (
-  <AddTaskModal
-    isOpen={showAddTaskModal}
-    onClose={closeAddTaskModal}
-    project={selectedProjectForTask}
-    darkMode={darkMode}
-    onTaskCreated={handleTaskCreated}
-  />
-)}
+        <AddTaskModal
+          isOpen={showAddTaskModal}
+          onClose={closeAddTaskModal}
+          project={selectedProjectForTask}
+          darkMode={darkMode}
+          onTaskCreated={handleTaskCreated}
+        />
+      )}
     </div>
   );
 };

@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FaTimes, 
-  FaPlus, 
-  FaCalendarAlt, 
-  FaUser, 
+import {
+  FaTimes,
+  FaPlus,
+  FaCalendarAlt,
+  FaUser,
   FaExclamationTriangle,
   FaInfoCircle,
   FaPaperclip,
   FaTrash,
   FaSpinner
 } from 'react-icons/fa';
+import PopupMessage from './PopupMessage';
 
-const AddTaskModal = ({ 
-  isOpen, 
-  onClose, 
-  project, 
+const AddTaskModal = ({
+  isOpen,
+  onClose,
+  project,
   darkMode,
-  onTaskCreated 
+  onTaskCreated
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -26,7 +27,7 @@ const AddTaskModal = ({
     assignedTo: '',
     bidId: ''
   });
-  
+  const [popup, setPopup] = useState({ show: false, type: '', message: '' });
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -84,17 +85,17 @@ const AddTaskModal = ({
     const allowedTypes = [
       'image/jpeg', 'image/png', 'image/gif',
       'application/pdf', 'text/plain',
-      'application/msword', 
+      'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
 
     const validFiles = files.filter(file => {
       if (file.size > maxSize) {
-        alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        setPopup({ show: true, type: 'error', message: `File ${file.name} is too large. Maximum size is 10MB.` });
         return false;
       }
       if (!allowedTypes.includes(file.type)) {
-        alert(`File type ${file.type} is not allowed.`);
+        setPopup({ show: true, type: 'error', message: `File type ${file.type} is not allowed.` });
         return false;
       }
       return true;
@@ -111,12 +112,12 @@ const AddTaskModal = ({
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
       setError('Task title is required');
       return;
     }
-    
+
     if (!formData.bidId) {
       setError('Please select a bid/freelancer');
       return;
@@ -138,7 +139,7 @@ const AddTaskModal = ({
       formDataToSend.append('description', formData.description);
       formDataToSend.append('priority', formData.priority);
       formDataToSend.append('assignedTo', formData.assignedTo);
-      
+
       if (formData.dueDate) {
         formDataToSend.append('dueDate', formData.dueDate);
       }
@@ -163,7 +164,7 @@ const AddTaskModal = ({
         if (onTaskCreated) {
           onTaskCreated(result.data);
         }
-        
+
         // Reset form and close modal
         setFormData({
           title: '',
@@ -175,8 +176,7 @@ const AddTaskModal = ({
         });
         setAttachments([]);
         onClose();
-        
-        alert('Task created successfully!');
+        setPopup({ show: true, type: 'success', message: 'Task created successfully!' });
       } else {
         setError(result.message || 'Failed to create task');
       }
@@ -245,9 +245,8 @@ const AddTaskModal = ({
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Enter task title..."
-                className={`w-full px-3 py-2 border rounded-lg ${
-                  darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                  }`}
                 required
               />
             </div>
@@ -262,9 +261,8 @@ const AddTaskModal = ({
                   name="bidId"
                   value={formData.bidId}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                    }`}
                   required
                 >
                   <option value="">Select a freelancer...</option>
@@ -313,9 +311,8 @@ const AddTaskModal = ({
                 onChange={handleInputChange}
                 placeholder="Describe the task details..."
                 rows={4}
-                className={`w-full px-3 py-2 border rounded-lg ${
-                  darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                  }`}
               />
             </div>
 
@@ -329,9 +326,8 @@ const AddTaskModal = ({
                   name="priority"
                   value={formData.priority}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                    }`}
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -354,9 +350,8 @@ const AddTaskModal = ({
                   name="dueDate"
                   value={formData.dueDate}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg ${
-                    darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                    }`}
                 />
               </div>
             </div>
@@ -371,10 +366,9 @@ const AddTaskModal = ({
                 type="file"
                 multiple
                 onChange={handleFileChange}
-                className={`w-full px-3 py-2 border rounded-lg ${
-                  darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                }`}
-                accept=".jpg,.jpeg,.png,.gif,.pdf,.txt,.doc,.docx"
+                className={`w-full px-3 py-2 border rounded-lg ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                  }`}
+                accept=".pdf,application/pdf"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Max 5 files, 10MB each. Supported: Images, PDF, Word documents, Text files
@@ -450,6 +444,14 @@ const AddTaskModal = ({
               </button>
             </div>
           </form>
+          {popup.show && (
+            <PopupMessage
+              type={popup.type}
+              message={popup.message}
+              onClose={() => setPopup({ show: false, type: '', message: '' })}
+            />
+          )}
+
         </div>
       </div>
     </div>

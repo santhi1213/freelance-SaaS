@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
+import {
   FaArrowLeft,
-  FaMoneyBillWave, 
-  FaCode, 
+  FaMoneyBillWave,
+  FaCode,
   FaClock,
   FaCalendarAlt,
   FaStar,
@@ -27,6 +27,7 @@ import ProjectBidModal from '../Modals/ProjectBidModal';
 const ProjectDetailsPage = ({ darkMode }) => {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const [popup, setPopup] = useState({ show: false, type: '', message: '' });
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('details');
@@ -38,12 +39,12 @@ const ProjectDetailsPage = ({ darkMode }) => {
   });
   const [similarProjects, setSimilarProjects] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  
+
   // Find project based on ID
   useEffect(() => {
     // First check in user's projects
     let foundProject = myProjects.find(p => p.id.toString() === projectId);
-    
+
     // If not found, check in all projects
     if (!foundProject) {
       foundProject = allProjects.find(p => p.id.toString() === projectId);
@@ -51,38 +52,38 @@ const ProjectDetailsPage = ({ darkMode }) => {
     if (!foundProject) {
       foundProject = bookmarkedProjects.find(p => p.id.toString() === projectId);
     }
-    
+
     if (foundProject) {
       setProject(foundProject);
-      
+
       // Find similar projects based on type and skills
       const similar = allProjects
-        .filter(p => 
-          p.id !== foundProject.id && 
-          (p.type === foundProject.type || 
-          // Add null check for skills property
-          (foundProject.skills && p.skills && 
-           p.skills.some(skill => foundProject.skills.includes(skill))))
+        .filter(p =>
+          p.id !== foundProject.id &&
+          (p.type === foundProject.type ||
+            // Add null check for skills property
+            (foundProject.skills && p.skills &&
+              p.skills.some(skill => foundProject.skills.includes(skill))))
         )
         .slice(0, 3);
-      
+
       setSimilarProjects(similar);
     }
-    
+
     setIsLoading(false);
   }, [projectId]);
-  
+
   // Handle going back
   const handleBack = () => {
     navigate(-1);
   };
-  
+
   // Handle bid form changes
   const handleBidChange = (e) => {
     const { name, value } = e.target;
     setBidDetails(prev => ({ ...prev, [name]: value }));
   };
-  
+
   // Handle new message input
   const handleMessageChange = (e) => {
     setNewMessage(e.target.value);
@@ -91,14 +92,14 @@ const ProjectDetailsPage = ({ darkMode }) => {
   // Handle sending a message
   const handleSendMessage = () => {
     if (newMessage.trim() === '') return;
-    
+
     // Here would be the logic to send the message to the API
     console.log('Message sent:', newMessage);
-    
+
     // Clear the input field
     setNewMessage('');
   };
-  
+
   // Handle bid submission
   const handleBidSubmit = () => {
     console.log('Bid submitted:', bidDetails, 'for project:', project);
@@ -110,20 +111,20 @@ const ProjectDetailsPage = ({ darkMode }) => {
       backgroundDescription: ''
     });
     // Show success notification
-    alert('Your bid has been successfully submitted!');
+    setPopup({ show: true, type: 'success', message: 'Your bid has been successfully submitted!' })
   };
-  
+
   // Format budget range
   const formatBudgetRange = (budget) => {
     if (!budget) return '';
-    
+
     // Extract min and max values
     const match = budget.match(/\$(\d+)\s*-\s*\$(\d+)/);
     if (!match) return budget;
-    
+
     const min = parseInt(match[1]);
     const max = parseInt(match[2]);
-    
+
     return {
       min,
       max,
@@ -131,7 +132,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
       formatted: budget
     };
   };
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -142,7 +143,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
       </div>
     );
   }
-  
+
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -152,7 +153,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
           <p className="mb-6 text-gray-600 dark:text-gray-300">
             The project you're looking for doesn't exist or has been removed.
           </p>
-          <Link 
+          <Link
             to="/browse"
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block"
           >
@@ -162,10 +163,10 @@ const ProjectDetailsPage = ({ darkMode }) => {
       </div>
     );
   }
-  
+
   const budget = formatBudgetRange(project.budget);
   const isUserProject = myProjects.some(p => p.id === project.id);
-  
+
   return (
     <div className="min-h-screen pb-16">
       {/* Page Header */}
@@ -178,14 +179,13 @@ const ProjectDetailsPage = ({ darkMode }) => {
             <FaArrowLeft className="mr-2" />
             Back to Projects
           </button>
-          
+
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold">{project.title}</h1>
               <div className="flex items-center mt-2">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                  darkMode ? 'bg-blue-900 bg-opacity-20 text-blue-300' : 'bg-blue-100 text-blue-800'
-                } mr-2`}>
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${darkMode ? 'bg-blue-900 bg-opacity-20 text-blue-300' : 'bg-blue-100 text-blue-800'
+                  } mr-2`}>
                   {project.type}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -193,7 +193,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 </span>
               </div>
             </div>
-            
+
             {!isUserProject && (
               <button
                 onClick={() => setShowBidModal(true)}
@@ -205,7 +205,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
@@ -214,11 +214,10 @@ const ProjectDetailsPage = ({ darkMode }) => {
             <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex overflow-x-auto">
                 <button
-                  className={`py-2 px-4 font-medium whitespace-nowrap ${
-                    activeTab === 'details' 
-                      ? 'border-b-2 border-blue-600 text-blue-600' 
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                  }`}
+                  className={`py-2 px-4 font-medium whitespace-nowrap ${activeTab === 'details'
+                    ? 'border-b-2 border-blue-600 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    }`}
                   onClick={() => setActiveTab('details')}
                 >
                   Project Details
@@ -226,31 +225,28 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 {isUserProject && (
                   <>
                     <button
-                      className={`py-2 px-4 font-medium whitespace-nowrap ${
-                        activeTab === 'tasks' 
-                          ? 'border-b-2 border-blue-600 text-blue-600' 
-                          : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                      }`}
+                      className={`py-2 px-4 font-medium whitespace-nowrap ${activeTab === 'tasks'
+                        ? 'border-b-2 border-blue-600 text-blue-600'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                        }`}
                       onClick={() => setActiveTab('tasks')}
                     >
                       Tasks
                     </button>
                     <button
-                      className={`py-2 px-4 font-medium whitespace-nowrap ${
-                        activeTab === 'files' 
-                          ? 'border-b-2 border-blue-600 text-blue-600' 
-                          : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                      }`}
+                      className={`py-2 px-4 font-medium whitespace-nowrap ${activeTab === 'files'
+                        ? 'border-b-2 border-blue-600 text-blue-600'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                        }`}
                       onClick={() => setActiveTab('files')}
                     >
                       Files & Documents
                     </button>
                     <button
-                      className={`py-2 px-4 font-medium whitespace-nowrap ${
-                        activeTab === 'messages' 
-                          ? 'border-b-2 border-blue-600 text-blue-600' 
-                          : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                      }`}
+                      className={`py-2 px-4 font-medium whitespace-nowrap ${activeTab === 'messages'
+                        ? 'border-b-2 border-blue-600 text-blue-600'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                        }`}
                       onClick={() => setActiveTab('messages')}
                     >
                       Messages
@@ -259,7 +255,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 )}
               </div>
             </div>
-            
+
             {/* Tab Content */}
             <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8`}>
               {/* Details Tab */}
@@ -269,19 +265,19 @@ const ProjectDetailsPage = ({ darkMode }) => {
                   <p className={`mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {project.description}
                   </p>
-                  
+
                   <h3 className="text-lg font-bold mb-3">Required Skills</h3>
                   <div className="flex flex-wrap gap-2 mb-6">
                     {project.skills && project.skills.map((skill, idx) => (
-                        <span 
-                        key={idx} 
+                      <span
+                        key={idx}
                         className={`${darkMode ? 'bg-gray-700 text-blue-300' : 'bg-blue-100 text-blue-800'} px-3 py-1 rounded-full text-sm`}
-                        >
+                      >
                         {skill}
-                        </span>
+                      </span>
                     ))}
-                 </div>
-                  
+                  </div>
+
                   <h3 className="text-lg font-bold mb-3">Deliverables</h3>
                   <ul className={`list-disc list-inside mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     <li className="mb-2">Complete and fully functional implementation of the described project</li>
@@ -290,7 +286,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     <li className="mb-2">Basic documentation for setup and usage</li>
                     <li>All source files and assets used in the project</li>
                   </ul>
-                  
+
                   {!isUserProject && (
                     <div className={`p-4 rounded-lg ${darkMode ? 'bg-blue-900 bg-opacity-20' : 'bg-blue-50'} mb-6`}>
                       <h3 className="text-lg font-semibold mb-2 flex items-center">
@@ -306,7 +302,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       </ul>
                     </div>
                   )}
-                  
+
                   {isUserProject && (
                     <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                       <h3 className="text-lg font-bold mb-3">Project Timeline</h3>
@@ -315,19 +311,18 @@ const ProjectDetailsPage = ({ darkMode }) => {
                           <div className="absolute top-0 bottom-0 left-4 w-0.5 bg-blue-600"></div>
                           {project.milestones && project.milestones.map((milestone, index) => (
                             <div key={index} className="relative pl-10 pb-8 last:pb-0">
-                              <div className={`absolute left-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                                milestone.completed 
-                                  ? 'bg-green-500 text-white' 
-                                  : index === project.milestones.findIndex(m => !m.completed)
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
-                              }`}>
+                              <div className={`absolute left-0 w-8 h-8 rounded-full flex items-center justify-center ${milestone.completed
+                                ? 'bg-green-500 text-white'
+                                : index === project.milestones.findIndex(m => !m.completed)
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                                }`}>
                                 {milestone.completed ? <FaCheckCircle /> : index + 1}
                               </div>
                               <h4 className="font-semibold">{milestone.name}</h4>
                               <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {milestone.completed 
-                                  ? 'Completed' 
+                                {milestone.completed
+                                  ? 'Completed'
                                   : index === project.milestones.findIndex(m => !m.completed)
                                     ? 'In Progress'
                                     : 'Upcoming'}
@@ -340,7 +335,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                   )}
                 </div>
               )}
-              
+
               {/* Tasks Tab */}
               {activeTab === 'tasks' && isUserProject && (
                 <div>
@@ -350,36 +345,34 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       Add New Task
                     </button>
                   </div>
-                  
+
                   <div className="space-y-4">
                     {project.milestones && project.milestones.map((milestone, mIndex) => (
                       <div key={mIndex} className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                         <div className="flex items-center mb-3">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
-                            milestone.completed 
-                              ? 'bg-green-500 text-white' 
-                              : 'bg-blue-600 text-white'
-                          }`}>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${milestone.completed
+                            ? 'bg-green-500 text-white'
+                            : 'bg-blue-600 text-white'
+                            }`}>
                             {milestone.completed ? <FaCheckCircle size={12} /> : mIndex + 1}
                           </div>
                           <h3 className="font-semibold">{milestone.name}</h3>
-                          <span className={`ml-auto text-xs px-2 py-1 rounded-full ${
-                            milestone.completed 
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-20 dark:text-green-300' 
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:bg-opacity-20 dark:text-blue-300'
-                          }`}>
+                          <span className={`ml-auto text-xs px-2 py-1 rounded-full ${milestone.completed
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-20 dark:text-green-300'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:bg-opacity-20 dark:text-blue-300'
+                            }`}>
                             {milestone.completed ? 'Completed' : 'In Progress'}
                           </span>
                         </div>
-                        
+
                         <div className="pl-9 space-y-2">
                           {/* Mock tasks for each milestone */}
                           {[1, 2, 3].map((task, tIndex) => (
                             <div key={tIndex} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600 last:border-0">
                               <div className="flex items-center">
-                                <input 
-                                  type="checkbox" 
-                                  checked={milestone.completed || Math.random() > 0.5} 
+                                <input
+                                  type="checkbox"
+                                  checked={milestone.completed || Math.random() > 0.5}
                                   readOnly
                                   className="mr-3"
                                 />
@@ -397,7 +390,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                   </div>
                 </div>
               )}
-              
+
               {/* Files Tab */}
               {activeTab === 'files' && isUserProject && (
                 <div>
@@ -407,7 +400,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       Upload File
                     </button>
                   </div>
-                  
+
                   <div className="grid gap-4 md:grid-cols-2">
                     {/* Mock files */}
                     {[
@@ -416,16 +409,15 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       { name: 'Project Timeline.xlsx', type: 'excel', date: '5 hours ago' },
                       { name: 'API Documentation.docx', type: 'word', date: '3 hours ago' }
                     ].map((file, index) => (
-                      <div 
-                        key={index} 
+                      <div
+                        key={index}
                         className={`p-4 rounded-lg border ${darkMode ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300'} flex items-center cursor-pointer transition-colors`}
                       >
-                        <div className={`w-10 h-10 rounded flex items-center justify-center mr-3 ${
-                          file.type === 'pdf' ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:bg-opacity-20 dark:text-red-400' :
+                        <div className={`w-10 h-10 rounded flex items-center justify-center mr-3 ${file.type === 'pdf' ? 'bg-red-100 text-red-600 dark:bg-red-900 dark:bg-opacity-20 dark:text-red-400' :
                           file.type === 'zip' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:bg-opacity-20 dark:text-yellow-400' :
-                          file.type === 'excel' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:bg-opacity-20 dark:text-green-400' :
-                          'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:bg-opacity-20 dark:text-blue-400'
-                        }`}>
+                            file.type === 'excel' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:bg-opacity-20 dark:text-green-400' :
+                              'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:bg-opacity-20 dark:text-blue-400'
+                          }`}>
                           <FaRegFilePdf />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -437,7 +429,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                   </div>
                 </div>
               )}
-              
+
               {/* Messages Tab */}
               {activeTab === 'messages' && isUserProject && (
                 <div>
@@ -447,26 +439,26 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       New Message
                     </button>
                   </div>
-                  
+
                   <div className="space-y-4">
                     {/* Mock messages */}
                     {[
-                      { 
-                        from: 'client', 
-                        name: project.client.name, 
+                      {
+                        from: 'client',
+                        name: project.client.name,
                         avatar: project.client.profile,
                         message: "Hi there! Just checking in on the progress of the project. How's it going so far?",
                         time: '2 days ago'
                       },
-                      { 
-                        from: 'user', 
+                      {
+                        from: 'user',
                         name: 'You',
                         avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
                         message: 'Hi! The project is progressing well. I\'ve completed the initial setup and started working on the main features. I\'ll have the first milestone ready by the end of the week.',
                         time: '2 days ago'
                       },
-                      { 
-                        from: 'client', 
+                      {
+                        from: 'client',
                         name: project.client.name,
                         avatar: project.client.profile,
                         message: 'That sounds great! Looking forward to seeing the first milestone. Let me know if you need any clarification on the requirements.',
@@ -475,24 +467,22 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     ].map((message, index) => (
                       <div key={index} className={`flex ${message.from === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[80%] flex ${message.from === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                          <img 
-                            src={message.avatar} 
-                            alt={message.name} 
+                          <img
+                            src={message.avatar}
+                            alt={message.name}
                             className="w-10 h-10 rounded-full flex-shrink-0 mx-3"
                           />
                           <div>
-                            <div className={`p-4 rounded-lg ${
-                              message.from === 'user'
-                                ? darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
-                                : darkMode ? 'bg-gray-700' : 'bg-gray-100'
-                            }`}>
+                            <div className={`p-4 rounded-lg ${message.from === 'user'
+                              ? darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
+                              : darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                              }`}>
                               <p className="text-sm">{message.message}</p>
                             </div>
-                            <div className={`flex items-center mt-1 text-xs ${
-                              message.from === 'user'
-                                ? 'justify-end'
-                                : 'justify-start'
-                            } ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            <div className={`flex items-center mt-1 text-xs ${message.from === 'user'
+                              ? 'justify-end'
+                              : 'justify-start'
+                              } ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                               <span>{message.name}</span>
                               <span className="mx-1">•</span>
                               <span>{message.time}</span>
@@ -502,18 +492,17 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="mt-6 flex">
                     <input
                       type="text"
                       placeholder="Type your message..."
                       value={newMessage}
                       onChange={handleMessageChange}
-                      className={`flex-1 px-4 py-2 rounded-l-lg border ${
-                        darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
-                      }`}
+                      className={`flex-1 px-4 py-2 rounded-l-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'
+                        }`}
                     />
-                    <button 
+                    <button
                       onClick={handleSendMessage}
                       className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg flex items-center"
                     >
@@ -524,14 +513,14 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 </div>
               )}
             </div>
-            
+
             {/* Similar Projects */}
             {!isUserProject && similarProjects.length > 0 && (
               <div>
                 <h2 className="text-xl font-bold mb-4">Similar Projects</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {similarProjects.map(similarProject => (
-                    <Link 
+                    <Link
                       key={similarProject.id}
                       to={`/project/${similarProject.id}`}
                       className={`block p-4 rounded-lg ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'} shadow-md transition-colors`}
@@ -556,7 +545,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
               </div>
             )}
           </div>
-          
+
           {/* Sidebar */}
           <div className="lg:w-1/3 space-y-6">
             {/* Project Info Card */}
@@ -573,7 +562,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       <p className="font-medium">{project.budget}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-green-900 bg-opacity-20' : 'bg-green-100'} mr-3`}>
                       <FaClock className="text-green-600" />
@@ -583,7 +572,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       <p className="font-medium">{project.duration}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-yellow-900 bg-opacity-20' : 'bg-yellow-100'} mr-3`}>
                       <FaCalendarAlt className="text-yellow-600" />
@@ -593,7 +582,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                       <p className="font-medium">{project.postedDate || '2 days ago'}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-purple-900 bg-opacity-20' : 'bg-purple-100'} mr-3`}>
                       <FaFileAlt className="text-purple-600" />
@@ -605,14 +594,14 @@ const ProjectDetailsPage = ({ darkMode }) => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Client Info */}
               <div className="p-6">
                 <h3 className="text-lg font-bold mb-4">About the Client</h3>
                 <div className="flex items-center mb-4">
-                  <img 
-                    src={project.client.profile} 
-                    alt={project.client.name} 
+                  <img
+                    src={project.client.profile}
+                    alt={project.client.name}
                     className="w-14 h-14 rounded-full mr-4 object-cover"
                   />
                   <div>
@@ -627,7 +616,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Member Since:</span>
@@ -646,7 +635,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     <span>United States</span>
                   </div>
                 </div>
-                
+
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <h4 className="font-medium mb-3">Client Verification</h4>
                   <div className="space-y-2">
@@ -664,7 +653,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 {!isUserProject && (
                   <div className="mt-6">
                     <button
@@ -677,7 +666,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 )}
               </div>
             </div>
-            
+
             {/* Activity Timeline for user projects */}
             {isUserProject && (
               <div className={`rounded-xl shadow-lg overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -703,7 +692,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 </div>
               </div>
             )}
-            
+
             {/* Project Stats for user projects */}
             {isUserProject && (
               <div className={`rounded-xl shadow-lg overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -716,13 +705,13 @@ const ProjectDetailsPage = ({ darkMode }) => {
                         <span className="font-medium">{project.progress}%</span>
                       </div>
                       <div className="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-blue-600 rounded-full" 
+                        <div
+                          className="h-full bg-blue-600 rounded-full"
                           style={{ width: `${project.progress}%` }}
                         ></div>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Tasks Completed</p>
@@ -733,7 +722,7 @@ const ProjectDetailsPage = ({ darkMode }) => {
                         <p className="text-xl font-bold">6 days</p>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h4 className="font-medium mb-2">Time Tracking</h4>
                       <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
@@ -751,13 +740,13 @@ const ProjectDetailsPage = ({ darkMode }) => {
                 </div>
               </div>
             )}
-            
+
             {/* Related Links */}
             <div className={`rounded-xl shadow-lg overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="p-6">
                 <h3 className="text-lg font-bold mb-4">Quick Links</h3>
                 <div className="space-y-3">
-                  <Link 
+                  <Link
                     to="/browse"
                     className="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
@@ -766,8 +755,8 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     </div>
                     <span>Browse More Projects</span>
                   </Link>
-                  
-                  <Link 
+
+                  <Link
                     to="/dashboard"
                     className="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
@@ -776,8 +765,8 @@ const ProjectDetailsPage = ({ darkMode }) => {
                     </div>
                     <span>View Dashboard</span>
                   </Link>
-                  
-                  <Link 
+
+                  <Link
                     to="/inbox"
                     className="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
@@ -792,10 +781,16 @@ const ProjectDetailsPage = ({ darkMode }) => {
           </div>
         </div>
       </div>
-      
+      {popup.show && (
+        <PopupMessage
+          type={popup.type}
+          message={popup.message}
+          onClose={() => setPopup({ show: false, type: '', message: '' })}
+        />
+      )}
       {/* Bid Modal */}
       {showBidModal && (
-        <ProjectBidModal 
+        <ProjectBidModal
           project={project}
           bidDetails={bidDetails}
           handleBidChange={handleBidChange}
