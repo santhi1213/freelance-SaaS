@@ -72,7 +72,40 @@ const UploadedProjects = ({ darkMode }) => {
     setSelectedProjectForTask(project);
     setShowAddTaskModal(true);
   };
+  const fetchProjectsWithCompletion = async (projects) => {
+    if (!projects || projects.length === 0) return projects;
 
+    console.log('Fetching completion for projects:', projects.length);
+
+    try {
+      const updatedProjects = await Promise.all(projects.map(async (project) => {
+        try {
+          console.log(`Fetching completion for project ID: ${project.id}`);
+          const completionRes = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/${project.id}/completion`);
+
+          if (completionRes.ok) {
+            const completionData = await completionRes.json();
+            console.log(`Completion data for ${project.id}:`, completionData);
+
+            const completionPercentage = completionData.project?.completionPercentage || 0;
+            return { ...project, progress: completionPercentage };
+          } else {
+            console.warn(`Failed to fetch completion for project ${project.id}: ${completionRes.status}`);
+            return { ...project, progress: 0 };
+          }
+        } catch (error) {
+          console.error(`Error fetching completion for project ${project.id}:`, error);
+          return { ...project, progress: 0 };
+        }
+      }));
+
+      console.log('Updated projects with completion:', updatedProjects);
+      return updatedProjects;
+    } catch (error) {
+      console.error('Error in fetchProjectsWithCompletion:', error);
+      return projects; // Return original projects if error
+    }
+  };
   // Add this function to handle task creation success
   const handleTaskCreated = (newTask) => {
     // You can add any additional logic here like showing a success message
@@ -120,74 +153,77 @@ const UploadedProjects = ({ darkMode }) => {
     }
   };
 
-  const fetchMyProjects = async (page = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
-        method: 'GET',
-        headers: getHeaders()
-      });
+ const fetchMyProjects = async (page = 1) => {
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await fetch(`https://freelance-backend-0tw4.onrender.com/api/projects/my-projects/${userId}?page=${page}&limit=10&status=${filters.status || 'all'}`, {
+      method: 'GET',
+      headers: getHeaders()
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch projects');
-      }
-
-      const data = await response.json();
-      console.log('API Response:', data);
-
-      if (data.success) {
-        // Transform API response to match the component's expected format
-        const transformedProjects = data.data.map(project => ({
-          id: project._id,
-          project_id: project.project_id,
-          project_status: project?.status || '',
-          title: project.title,
-          description: project.description,
-          status: mapProjectStatus(project.status),
-          budget: `${project.budget_from || 0} - ${project.budget_to || 0}`,
-          deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-          }) : 'No deadline set',
-          startDate: new Date(project.createdAt).toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-          }),
-          progress: Math.floor(Math.random() * 100),
-          duration: project.project_duration || 'Not specified',
-          category: project.project_type || 'General',
-          skills: project.req_skills || [],
-          client: {
-            name: project.clientName || 'Client',
-            profile: '/default-avatar.png',
-            rating: 4.5
-          },
-          bids: project.bids,
-          bidStatistics: project.bidStatistics || {
-            total: 0,
-            pending: 0,
-            accepted: 0,
-            rejected: 0
-          },
-          createdAt: project.createdAt,
-          canStartChat: project.canStartChat || false,
-          // Store the raw bids data for later use
-          _rawBids: project.bids || []
-        }));
-
-        setMyProjects(transformedProjects);
-        setPagination(data.pagination);
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching projects:', err);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error('Failed to fetch projects');
     }
-  };
+
+    const data = await response.json();
+    console.log('API Response:', data);
+
+    if (data.success) {
+      // Transform API response to match the component's expected format
+      const transformedProjects = data.data.map(project => ({
+        id: project._id,
+        project_id: project.project_id,
+        project_status: project?.status || '',
+        title: project.title,
+        description: project.description,
+        status: mapProjectStatus(project.status),
+        budget: `${project.budget_from || 0} - ${project.budget_to || 0}`,
+        deadline: project.deadline ? new Date(project.deadline).toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        }) : 'No deadline set',
+        startDate: new Date(project.createdAt).toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        progress: 0, // Will be updated below with actual completion percentage
+        duration: project.project_duration || 'Not specified',
+        category: project.project_type || 'General',
+        skills: project.req_skills || [],
+        client: {
+          name: project.clientName || 'Client',
+          profile: '/default-avatar.png',
+          rating: 4.5
+        },
+        bids: project.bids,
+        bidStatistics: project.bidStatistics || {
+          total: 0,
+          pending: 0,
+          accepted: 0,
+          rejected: 0
+        },
+        createdAt: project.createdAt,
+        canStartChat: project.canStartChat || false,
+        // Store the raw bids data for later use
+        _rawBids: project.bids || []
+      }));
+
+      // Fetch completion data for all projects
+      const projectsWithCompletion = await fetchProjectsWithCompletion(transformedProjects);
+      
+      setMyProjects(projectsWithCompletion);
+      setPagination(data.pagination);
+    }
+  } catch (err) {
+    setError(err.message);
+    console.error('Error fetching projects:', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Handle bid status update (accept/reject)
   const handleBidStatusUpdate = async (bidId, status, message = '') => {
